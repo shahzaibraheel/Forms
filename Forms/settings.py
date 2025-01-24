@@ -81,14 +81,20 @@ from urllib.parse import quote_plus
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'userforms',  # Replace with your MySQL database name
+#         'USER': 'root',       # Replace with your MySQL username
+#         'PASSWORD': 'zong1234',   # Replace with your MySQL password
+#         'HOST': 'localhost',           # Or the IP address of your MySQL server
+#         'PORT': '3306',                # Default MySQL port
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'userforms',  # Replace with your MySQL database name
-        'USER': 'root',       # Replace with your MySQL username
-        'PASSWORD': 'zong1234',   # Replace with your MySQL password
-        'HOST': 'localhost',           # Or the IP address of your MySQL server
-        'PORT': '3306',                # Default MySQL port
+        'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
