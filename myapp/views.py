@@ -31,7 +31,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import now
 from .models import ContactChangeLog
-import pytz
+
 from django.utils.timezone import now
 
 @login_required
@@ -62,9 +62,7 @@ def contact_edit_view(request, pk):
             # Save the updated contact
             form.save()
 
-            # Convert the timestamp to Pakistan Standard Time (PST)
-            pakistan_tz = pytz.timezone('Asia/Karachi')
-            timestamp = now().astimezone(pakistan_tz)
+            
 
             # Log changes dynamically
             for field, change in changes.items():
