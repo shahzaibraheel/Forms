@@ -210,28 +210,7 @@ if not firebase_admin._apps:
 
 
 db = firestore.client() 
-# Function to create test users in Firebase
-def create_test_users():
-    users_data = [
-        {"username": "user1", "email": "user1@example.com", "password": "password123"},
-        {"username": "user2", "email": "user2@example.com", "password": "password123"},
-        {"username": "user3", "email": "user3@example.com", "password": "password123"},
-    ]
 
-    for data in users_data:
-        try:
-            # Create user in Firebase Authentication
-            user = auth.create_user(email=data["email"], password=data["password"])
-            
-            # Store username mapping in Firestore
-            db.collection("users").document(data["username"]).set({"email": data["email"]})
-
-            print(f"User {data['username']} created successfully in Firebase.")
-        except Exception as e:
-            print(f"Error creating user {data['username']}: {e}")
-
-# Run the function to create test users
-create_test_users()
 import firebase_admin
 from firebase_admin import auth, credentials
 from django.http import JsonResponse
@@ -271,117 +250,117 @@ def firebase_login_view(request):
 def login_view(request):
     return render(request, "login.html") 
 
-# views.py
-import io
-import csv
-from django.shortcuts import render
-from django.http import HttpResponse
-from .forms import FileUploadForm
-from .models import DataRecord
+# # views.py
+# import io
+# import csv
+# from django.shortcuts import render
+# from django.http import HttpResponse
+# from .forms import FileUploadForm
+# from .models import DataRecord
 
-import io
-import csv
-from django.http import HttpResponse
-from django.shortcuts import render
-from .forms import FileUploadForm
-from .models import DataRecord
-
-
+# import io
+# import csv
+# from django.http import HttpResponse
+# from django.shortcuts import render
+# from .forms import FileUploadForm
+# from .models import DataRecord
 
 
-from django.http import JsonResponse
-from .models import DataRecord
 
-def get_retailer_number(request):
-    retailer_id = request.GET.get('retailer_id')
-    if retailer_id:
-        try:
-            data_record = DataRecord.objects.get(retailer_id=retailer_id)
+
+# from django.http import JsonResponse
+# from .models import DataRecord
+
+# def get_retailer_number(request):
+#     retailer_id = request.GET.get('retailer_id')
+#     if retailer_id:
+#         try:
+#             data_record = DataRecord.objects.get(retailer_id=retailer_id)
            
-            return JsonResponse({'retailer_number': data_record.retailer_msisdn,'Franchise_ID': data_record.second_parent_id,
-            'Region': data_record.second_parent_region})
-        except DataRecord.DoesNotExist:
-            return JsonResponse({'retailer_number': None})
-    return JsonResponse({'retailer_number': None})
+#             return JsonResponse({'retailer_number': data_record.retailer_msisdn,'Franchise_ID': data_record.second_parent_id,
+#             'Region': data_record.second_parent_region})
+#         except DataRecord.DoesNotExist:
+#             return JsonResponse({'retailer_number': None})
+#     return JsonResponse({'retailer_number': None})
 
-import io
-import csv
-from django.http import HttpResponse
-from django.shortcuts import render
-from openpyxl import load_workbook
-from .forms import FileUploadForm, BVSUploadForm, HeirarchyUploadForm
-from .models import DataRecord, DataRecordBVS, Heirarchy
+# import io
+# import csv
+# from django.http import HttpResponse
+# from django.shortcuts import render
+# from openpyxl import load_workbook
+# from .forms import FileUploadForm, BVSUploadForm, HeirarchyUploadForm
+# from .models import DataRecord, DataRecordBVS, Heirarchy
 
-def upload_file(request):
-    form1 = FileUploadForm()
-    form2 = BVSUploadForm()
-    form3 = HeirarchyUploadForm()
+# def upload_file(request):
+#     form1 = FileUploadForm()
+#     form2 = BVSUploadForm()
+#     form3 = HeirarchyUploadForm()
 
-    if request.method == 'POST':
-        if 'upload_csv' in request.POST:
-            form1 = FileUploadForm(request.POST, request.FILES)
-            if form1.is_valid():
-                csv_file = request.FILES['file']
-                decoded_file = csv_file.read().decode('utf-8')
-                io_string = io.StringIO(decoded_file)
-                csv_reader = csv.reader(io_string, delimiter=',', quotechar='"')
+#     if request.method == 'POST':
+#         if 'upload_csv' in request.POST:
+#             form1 = FileUploadForm(request.POST, request.FILES)
+#             if form1.is_valid():
+#                 csv_file = request.FILES['file']
+#                 decoded_file = csv_file.read().decode('utf-8')
+#                 io_string = io.StringIO(decoded_file)
+#                 csv_reader = csv.reader(io_string, delimiter=',', quotechar='"')
 
-                # Clear all existing records for DataRecord
-                DataRecord.objects.all().delete()
+#                 # Clear all existing records for DataRecord
+#                 DataRecord.objects.all().delete()
 
-                # Collect data for bulk creation
-                records = [
-                    DataRecord(
-                        second_parent_region=row[0],
-                        second_parent_id=row[1],
-                        rso_id=row[2],
-                        rso_msisdn=row[3],
-                        retailer_id=row[4],
-                        retailer_msisdn=row[5]
-                    )
-                    for row in csv_reader
-                ]
+#                 # Collect data for bulk creation
+#                 records = [
+#                     DataRecord(
+#                         second_parent_region=row[0],
+#                         second_parent_id=row[1],
+#                         rso_id=row[2],
+#                         rso_msisdn=row[3],
+#                         retailer_id=row[4],
+#                         retailer_msisdn=row[5]
+#                     )
+#                     for row in csv_reader
+#                 ]
 
-                DataRecord.objects.bulk_create(records)
-                return HttpResponse('CSV file for DataRecord uploaded and data inserted successfully.')
+#                 DataRecord.objects.bulk_create(records)
+#                 return HttpResponse('CSV file for DataRecord uploaded and data inserted successfully.')
 
-        elif 'upload_bvs_xlsx' in request.POST:
-            form2 = BVSUploadForm(request.POST, request.FILES)
-            if form2.is_valid():
-                excel_file = request.FILES['file']
-                wb = load_workbook(excel_file)
-                sheet = wb.active
+#         elif 'upload_bvs_xlsx' in request.POST:
+#             form2 = BVSUploadForm(request.POST, request.FILES)
+#             if form2.is_valid():
+#                 excel_file = request.FILES['file']
+#                 wb = load_workbook(excel_file)
+#                 sheet = wb.active
 
-                # Clear all existing records for DataRecordBVS
-                DataRecordBVS.objects.all().delete()
+#                 # Clear all existing records for DataRecordBVS
+#                 DataRecordBVS.objects.all().delete()
 
-                records = [
-                    DataRecordBVS(Device_ID=row[0], retailer_id=row[2])
-                    for row in sheet.iter_rows(min_row=2, values_only=True)
-                ]
+#                 records = [
+#                     DataRecordBVS(Device_ID=row[0], retailer_id=row[2])
+#                     for row in sheet.iter_rows(min_row=2, values_only=True)
+#                 ]
 
-                DataRecordBVS.objects.bulk_create(records)
-                return HttpResponse('XLSX file for DataRecordBVS uploaded and data inserted successfully.')
+#                 DataRecordBVS.objects.bulk_create(records)
+#                 return HttpResponse('XLSX file for DataRecordBVS uploaded and data inserted successfully.')
 
-        elif 'upload_heirarchy_xlsx' in request.POST:
-            form3 = HeirarchyUploadForm(request.POST, request.FILES)
-            if form3.is_valid():
-                excel_file = request.FILES['file']
-                wb = load_workbook(excel_file)
-                sheet = wb["HQ"]  # Explicitly select the "HQ" sheet
+#         elif 'upload_heirarchy_xlsx' in request.POST:
+#             form3 = HeirarchyUploadForm(request.POST, request.FILES)
+#             if form3.is_valid():
+#                 excel_file = request.FILES['file']
+#                 wb = load_workbook(excel_file)
+#                 sheet = wb["HQ"]  # Explicitly select the "HQ" sheet
 
-                # Clear all existing records for Heirarchy
-                Heirarchy.objects.all().delete()
+#                 # Clear all existing records for Heirarchy
+#                 Heirarchy.objects.all().delete()
 
-                records = [
-                    Heirarchy(Franchise_ID=row[0], Grid=row[10],Cluster=row[23])
-                    for row in sheet.iter_rows(min_row=3, values_only=True)
-                ]
+#                 records = [
+#                     Heirarchy(Franchise_ID=row[0], Grid=row[10],Cluster=row[23])
+#                     for row in sheet.iter_rows(min_row=3, values_only=True)
+#                 ]
 
-                Heirarchy.objects.bulk_create(records)
-                return HttpResponse('XLSX file for Heirarchy uploaded and data inserted successfully.')
+#                 Heirarchy.objects.bulk_create(records)
+#                 return HttpResponse('XLSX file for Heirarchy uploaded and data inserted successfully.')
 
-    return render(request, 'upload.html', {'form1': form1, 'form2': form2, 'form3': form3})
+#     return render(request, 'upload.html', {'form1': form1, 'form2': form2, 'form3': form3})
 
 from .models import DataRecordBVS
 from django.http import JsonResponse
