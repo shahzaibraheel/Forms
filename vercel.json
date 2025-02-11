@@ -2,6 +2,7 @@
     "builds": [{
       "src": "Forms/wsgi.py",
       "use": "@vercel/python",
+      "command": "python manage.py migrate",
       "config": { "maxLambdaSize": "15mb", "runtime": "python3.11.3" }
     }],
     "routes": [
