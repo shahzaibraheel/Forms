@@ -38,7 +38,7 @@ USE_TZ = True
 SECRET_KEY = 'django-insecure-2ur&#ku0v^ddkkxxue%vmh_x2ua(brgvyz3^0#eqc1+g94e&2p'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -102,11 +102,18 @@ from urllib.parse import quote_plus
 #         'PORT': '3306',                # Default MySQL port
 #     }
 # }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.dummy',  # Firebase does not need a Django database backend
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.dummy',  # Firebase does not need a Django database backend
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',  # Uses an in-memory database
     }
 }
+
 
 
 
