@@ -191,16 +191,16 @@ import os
 import firebase_admin
 from firebase_admin import credentials
 
-# Get the base directory of the Django project
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import firebase_admin
+from firebase_admin import credentials
+from django.conf import settings
 
-# Construct the full path to Dso.json inside the "myapp" directory
-json_path = os.path.join(BASE_DIR, "myapp", "Dso.json")
+json_path = settings.FIREBASE_CREDENTIALS  # Get path from settings
 
-# Initialize Firebase if it hasn't been initialized yet
-if not firebase_admin._apps:
+if not firebase_admin._apps:  # Initialize only if not already initialized
     cred = credentials.Certificate(json_path)
     firebase_admin.initialize_app(cred)
+
 
 db = firestore.client() 
 # Function to create test users in Firebase
