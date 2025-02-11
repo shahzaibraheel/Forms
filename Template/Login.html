@@ -108,12 +108,9 @@
                     .then(text => {
                         console.log("Raw response:", text); // Debugging log
                         try {
-                            let data = JSON.parse(text);
-                            if (data.success) {
+                           
                                 window.location.href = "/contact/list";
-                            } else {
-                                showErrorMessage(data.message);
-                            }
+                           
                         } catch (error) {
                             console.error("JSON Parse Error:", error, text);
                             showErrorMessage("Unexpected server response. Check console for details.");
