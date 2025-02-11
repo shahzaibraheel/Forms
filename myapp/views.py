@@ -430,39 +430,39 @@ def contact_delete(request, contact_id):
     print("Invalid request method:", request.method)  # Debugging
     return JsonResponse({"error": "Invalid request"}, status=400)
 
-from django.shortcuts import render
-from django.http import HttpResponse
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from .models import Contact  # Import your contact model
+# from django.shortcuts import render
+# from django.http import HttpResponse
+# from reportlab.lib.pagesizes import letter
+# from reportlab.pdfgen import canvas
+# from .models import Contact  # Import your contact model
 
-def generate_oath_pdf(request, contact_id):
-    # Retrieve the contact from the database using the contact ID
-    contact = Contact.objects.get(id=contact_id)
+# def generate_oath_pdf(request, contact_id):
+#     # Retrieve the contact from the database using the contact ID
+#     contact = Contact.objects.get(id=contact_id)
     
-    # Create the PDF response
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{contact.DSO_Name}_Oath_Form.pdf"'
+#     # Create the PDF response
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename="{contact.DSO_Name}_Oath_Form.pdf"'
     
-    # Create a canvas object to generate the PDF
-    pdf = canvas.Canvas(response, pagesize=letter)
+#     # Create a canvas object to generate the PDF
+#     pdf = canvas.Canvas(response, pagesize=letter)
     
-    # Leave half the page blank
-    pdf.drawString(100, 100, "")
+#     # Leave half the page blank
+#     pdf.drawString(100, 100, "")
     
-    # Set up the oath statement
-    pdf.setFont("Helvetica", 12)
-    pdf.drawString(80, 250, "I, _____, S/O _____, work at Zong Franchise __________________ as a ________________.")
-    pdf.drawString(80, 230, f"The BVS device assigned to me has the IMEI number {contact.BVS_Device}.")
-    pdf.drawString(80, 210, "I understand that I will be held responsible for any unlawful activity involving this device,")
-    pdf.drawString(80, 190, "and the company reserves the right to take legal action against me.")
+#     # Set up the oath statement
+#     pdf.setFont("Helvetica", 12)
+#     pdf.drawString(80, 250, "I, _____, S/O _____, work at Zong Franchise __________________ as a ________________.")
+#     pdf.drawString(80, 230, f"The BVS device assigned to me has the IMEI number {contact.BVS_Device}.")
+#     pdf.drawString(80, 210, "I understand that I will be held responsible for any unlawful activity involving this device,")
+#     pdf.drawString(80, 190, "and the company reserves the right to take legal action against me.")
     
-    # Add signature line
-    pdf.drawString(80, 150, "Signature: ____________________________")
-    pdf.drawString(80, 130, "Date: ________________________________")
+#     # Add signature line
+#     pdf.drawString(80, 150, "Signature: ____________________________")
+#     pdf.drawString(80, 130, "Date: ________________________________")
     
-    # Save the PDF
-    pdf.showPage()
-    pdf.save()
+#     # Save the PDF
+#     pdf.showPage()
+#     pdf.save()
     
-    return response
+#     return response
