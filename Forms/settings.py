@@ -102,21 +102,22 @@ from urllib.parse import quote_plus
 #         'PORT': '3306',                # Default MySQL port
 #     }
 # }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.dummy',  # Firebase does not need a Django database backend
-#     }
-# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'if0_38148206_UserFormDatabase',  # Your InfinityFree DB name
-        'USER': 'if0_38148206',  # Your InfinityFree DB username
-        'PASSWORD': 'fMMcmHZreP5',  # Your vPanel password
-        'HOST': 'sql305.infinityfree.com',  # Your InfinityFree host
-        'PORT': '3306',  # Default MySQL port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'if0_38148206_UserFormDatabase',  # Your InfinityFree DB name
+#         'USER': 'if0_38148206',  # Your InfinityFree DB username
+#         'PASSWORD': 'fMMcmHZreP5',  # Your vPanel password
+#         'HOST': 'sql305.infinityfree.com',  # Your InfinityFree host
+#         'PORT': '3306',  # Default MySQL port
+#     }
+# }
 
 
 
