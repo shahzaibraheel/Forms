@@ -248,7 +248,7 @@ def firebase_login_view(request):
     return JsonResponse({"success": False, "message": "Invalid request method"}, status=405)
 
 def login_view(request):
-    return render(request, "login.html") 
+    return render(request, "Login.html") 
 
 # # views.py
 # import io
