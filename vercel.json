@@ -1,14 +1,15 @@
 {
-    "builds": [{
-      "src": "Forms/wsgi.py",
-      "use": "@vercel/python",
-      "command": "python manage.py migrate",
-      "config": { "maxLambdaSize": "15mb", "runtime": "python3.11.3" }
-    }],
+    "builds": [
+        {
+            "src": "Forms/wsgi.py",
+            "use": "@vercel/python",
+            "config": { "maxLambdaSize": "15mb", "runtime": "python3.11" }
+        }
+    ],
     "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "Forms/wsgi.py"
-      }
+        {
+            "src": "/(.*)",
+            "dest": "Forms/wsgi.py"
+        }
     ]
 }
