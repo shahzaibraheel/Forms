@@ -362,12 +362,12 @@ def login_view(request):
 
 #     return render(request, 'upload.html', {'form1': form1, 'form2': form2, 'form3': form3})
 
-from .models import DataRecordBVS
-from django.http import JsonResponse
-from .models import DataRecordBVS,Heirarchy
+# from .models import DataRecordBVS
+# from django.http import JsonResponse
+# from .models import DataRecordBVS,Heirarchy
 
-from django.http import JsonResponse
-from myapp.models import Heirarchy  # Import your model
+# from django.http import JsonResponse
+# from myapp.models import Heirarchy  # Import your model
 
 def get_Cluster(request):
     Franchise_ID = request.GET.get('Franchise_ID')
