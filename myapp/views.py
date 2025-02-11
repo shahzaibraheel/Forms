@@ -233,16 +233,24 @@ def firebase_login_view(request):
 
             decoded_token = auth.verify_id_token(id_token)
             email = decoded_token.get("email")
+            uid = decoded_token.get("uid")
 
             if not email:
                 return JsonResponse({"success": False, "message": "Email not found in token"}, status=400)
 
-            user, created = User.objects.get_or_create(username=email, defaults={"email": email})
+            request.session["firebase_uid"] = uid
+            request.session["firebase_email"] = email
 
-            login(request, user)
+            print(f"Login successful: {email}, UID: {uid}")  # Debugging line
 
-            return JsonResponse({"success": True, "message": "Login successful"})
+            return JsonResponse({
+                "success": True,
+                "message": "Login successful",
+                "user": {"email": email, "uid": uid},
+                "redirect": "/contact/list"  # Explicit redirection
+            })
         except Exception as e:
+            print(f"Login error: {str(e)}")  # Debugging line
             return JsonResponse({"success": False, "message": str(e)}, status=400)
 
     return JsonResponse({"success": False, "message": "Invalid request method"}, status=405)
