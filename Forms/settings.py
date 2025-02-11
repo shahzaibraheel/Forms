@@ -157,8 +157,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-SESSION_ENGINE = "django.contrib.sessions.backends.file"
-SESSION_FILE_PATH = "/tmp/django_sessions"
 
 
 # Static files (CSS, JavaScript, Images)
