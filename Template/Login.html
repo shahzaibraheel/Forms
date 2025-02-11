@@ -94,7 +94,6 @@
                 firebase.auth().signInWithEmailAndPassword(email, password)
                     .then(userCredential => userCredential.user.getIdToken())
                     .then(idToken => {
-                        console.log("ID Token:", idToken);  // Debugging log
                         return fetch("/firebase-login/", {
                             method: "POST",
                             headers: {
@@ -104,20 +103,20 @@
                             body: JSON.stringify({ token: idToken })
                         });
                     })
-                    .then(response => response.text())  // Get raw response first
-                    .then(text => {
-                        console.log("Raw response:", text); // Debugging log
-                        try {
-                           
-                                window.location.href = "/contact/list";
-                           
-                        } catch (error) {
-                            console.error("JSON Parse Error:", error, text);
-                            showErrorMessage("Unexpected server response. Check console for details.");
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Server response error.");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = "/contact/list";
+                        } else {
+                            showErrorMessage(data.error || "Login failed.");
                         }
                     })
                     .catch(error => {
-                        console.error("Fetch Error:", error);
                         showErrorMessage(getFriendlyErrorMessage(error));
                     });
 
