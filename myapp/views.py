@@ -224,7 +224,7 @@ from django.http import JsonResponse
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 import json
-
+@csrf_exempt
 def firebase_login_view(request):
     if request.method == "POST":
         try:
