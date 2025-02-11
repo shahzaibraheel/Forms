@@ -109,10 +109,15 @@ from urllib.parse import quote_plus
 # }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',  # Uses an in-memory database
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'if0_38148206_UserFormDatabase',  # Your InfinityFree DB name
+        'USER': 'if0_38148206',  # Your InfinityFree DB username
+        'PASSWORD': 'fMMcmHZreP5',  # Your vPanel password
+        'HOST': 'sql305.infinityfree.com',  # Your InfinityFree host
+        'PORT': '3306',  # Default MySQL port
     }
 }
+
 
 
 
