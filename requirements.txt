@@ -7,3 +7,5 @@ dj-database-url==2.0.0
 PyMySQL==1.0.3
 firebase-admin
 pytz
+reportlab
+
