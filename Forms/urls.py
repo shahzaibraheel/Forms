@@ -3,7 +3,7 @@ from django.urls import path
 from django.views.generic import RedirectView
 
 from myapp.views import contact_view
-from myapp.views import contact_list_view,DSO_list_view,RSO_list_view,contact_delete,generate_oath_pdf
+from myapp.views import contact_list_view,DSO_list_view,RSO_list_view,contact_delete
 from myapp.views import contact_edit_view
 from myapp.views import login_view
 from myapp.views import get_retailer_number,contact_delete
