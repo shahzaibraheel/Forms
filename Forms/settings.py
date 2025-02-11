@@ -14,6 +14,8 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+# Define Firebase Credentials Path
+FIREBASE_CREDENTIALS = os.path.join(BASE_DIR, "myapp", "Dso.json")
 LOGIN_URL = '/login/'  # Replace with your login page URL
 TIME_ZONE = 'Asia/Karachi'
 USE_TZ = True
