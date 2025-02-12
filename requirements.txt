@@ -9,4 +9,7 @@ firebase-admin
 pytz
 reportlab
 pymysql
+psycopg2-binary
+supabase
+
 
