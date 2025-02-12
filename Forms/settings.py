@@ -118,18 +118,14 @@ SUPABASE_URL = "https://gkzxyvuufcdlednrozke.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdrenh5dnV1ZmNkbGVkbnJvemtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzMDQxNjUsImV4cCI6MjA1NDg4MDE2NX0.Y4nAq_9n69A7R031I-bR4U_jxhDAlm7kQreaD6Avl9Y"  # Replace with your full key
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# PostgreSQL Database Configuration
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': "postgres",  # Default database name in Supabase
-        'USER': "postgres",
-        'PASSWORD': "shahzaib1044",  # Replace with actual password
-        'HOST': "db.gkzxyvuufcdlednrozke.supabase.co",
-        'PORT': "5432",
-        'OPTIONS': {
-            'sslmode': 'require',  # Ensures secure connection
-        },
+        'NAME': 'postgres',
+        'USER': 'postgres.gkzxyvuufcdlednrozke',
+        'PASSWORD': 'shahzaib1044',  # Ensure this is correct
+        'HOST': 'aws-0-ap-southeast-1.pooler.supabase.com',
+        'PORT': '6543',  # Ensure this matches Supabase settings
     }
 }
 
