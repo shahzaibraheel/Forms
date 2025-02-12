@@ -50,19 +50,19 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'myapp',
     'django.contrib.admin',
-    # 'django.contrib.auth',
+    'django.contrib.auth',
     'django.contrib.contenttypes',
-    # 'django.contrib.sessions',
+    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # 'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -105,12 +105,34 @@ from urllib.parse import quote_plus
 # }
 import os
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join('/tmp', 'db.sqlite3'),  # Store SQLite in /tmp
+#     }
+# }
+from supabase import create_client
+
+# Supabase API connection (optional)
+SUPABASE_URL = "https://gkzxyvuufcdlednrozke.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdrenh5dnV1ZmNkbGVkbnJvemtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzMDQxNjUsImV4cCI6MjA1NDg4MDE2NX0.Y4nAq_9n69A7R031I-bR4U_jxhDAlm7kQreaD6Avl9Y"  # Replace with your full key
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# PostgreSQL Database Configuration
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join('/tmp', 'db.sqlite3'),  # Store SQLite in /tmp
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': "postgres",  # Default database name in Supabase
+        'USER': "postgres",
+        'PASSWORD': "shahzaib1044",  # Replace with actual password
+        'HOST': "db.gkzxyvuufcdlednrozke.supabase.co",
+        'PORT': "5432",
+        'OPTIONS': {
+            'sslmode': 'require',  # Ensures secure connection
+        },
     }
 }
+
 
 # DATABASES = {
 #     'default': {
