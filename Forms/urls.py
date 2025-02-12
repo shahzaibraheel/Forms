@@ -21,7 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('contact/', contact_view, name='contact'),
     path('', RedirectView.as_view(url='/login/')),  # Redirect root to /contact/
-    # path('contact/list/', contact_list_view, name='contact_list'),  # List URL
+    path('contact/list/', contact_list_view, name='contact_list'),  # List URL
     # path('DSO/list/', DSO_list_view, name='DSO_List'),  # List URL
     # path('RSO/list/', RSO_list_view, name='RSO_list'),  # List URL
     # path('contact/edit/<int:pk>/', contact_edit_view, name='contact_edit'),
