@@ -176,206 +176,147 @@ from django.shortcuts import render, redirect
 from .forms import LoginForm
 from django.contrib.auth.models import User
 
-import firebase_admin
-from firebase_admin import auth, credentials
-from django.http import JsonResponse
-from django.middleware.csrf import get_token
-from django.contrib.auth import login
-from django.contrib.auth.models import User
-
-
-
-
-import firebase_admin
-from firebase_admin import credentials, firestore
-import os
-import base64
-import json
-
-# Get the FIREBASE_CREDENTIALS environment variable
-firebase_creds_base64 = os.getenv("FIREBASE_CREDENTIALS")
-
-if not firebase_creds_base64:
-    raise ValueError("FIREBASE_CREDENTIALS environment variable is not set or empty.")
-
-try:
-    firebase_creds = json.loads(base64.b64decode(firebase_creds_base64).decode())
-except json.JSONDecodeError:
-    raise ValueError("Invalid FIREBASE_CREDENTIALS: Unable to decode JSON.")
-
-# Initialize Firebase only if not already initialized
-if not firebase_admin._apps:
-    cred = credentials.Certificate(firebase_creds)
-    firebase_admin.initialize_app(cred)
-
-
-db = firestore.client() 
-
-import firebase_admin
-from firebase_admin import auth, credentials
-from django.http import JsonResponse
-from django.middleware.csrf import get_token
-from django.contrib.auth import login
-from django.contrib.auth.models import User
-
-
-from firebase_admin import auth
-from django.http import JsonResponse
-from django.contrib.auth import login
-from django.contrib.auth.models import User
-import json
-@csrf_exempt
-def firebase_login_view(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            id_token = data.get("token")
-
-            decoded_token = auth.verify_id_token(id_token)
-            email = decoded_token.get("email")
-            uid = decoded_token.get("uid")
-
-            if not email:
-                return JsonResponse({"success": False, "message": "Email not found in token"}, status=400)
-
-            request.session["firebase_uid"] = uid
-            request.session["firebase_email"] = email
-
-            print(f"Login successful: {email}, UID: {uid}")  # Debugging line
-
-            return JsonResponse({
-                "success": True,
-                "message": "Login successful",
-                "user": {"email": email, "uid": uid},
-                "redirect": "/contact/list"  # Explicit redirection
-            })
-        except Exception as e:
-            print(f"Login error: {str(e)}")  # Debugging line
-            return JsonResponse({"success": False, "message": str(e)}, status=400)
-
-    return JsonResponse({"success": False, "message": "Invalid request method"}, status=405)
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from .forms import LoginForm
 
 def login_view(request):
-    return render(request, "Login.html") 
+    form = LoginForm(request.POST or None)
+    msg = None
 
-# # views.py
-# import io
-# import csv
-# from django.shortcuts import render
-# from django.http import HttpResponse
-# from .forms import FileUploadForm
-# from .models import DataRecord
+    if request.method == "POST" and form.is_valid():
+        username = form.cleaned_data.get("username")
+        password = form.cleaned_data.get("password")
+        user = authenticate(username=username, password=password)
 
-# import io
-# import csv
-# from django.http import HttpResponse
-# from django.shortcuts import render
-# from .forms import FileUploadForm
-# from .models import DataRecord
+        if user is not None:
+            login(request, user)
+            return redirect("/contact/list")  # Redirect to home or dashboard page
+        else:
+            msg = "Invalid credentials"
+    elif request.method == "POST":
+        msg = "Error validating the form"
+
+    return render(request, "Login.html", {"form": form, "msg": msg})
+
+# views.py
+import io
+import csv
+from django.shortcuts import render
+from django.http import HttpResponse
+from .forms import FileUploadForm
+from .models import DataRecord
+
+import io
+import csv
+from django.http import HttpResponse
+from django.shortcuts import render
+from .forms import FileUploadForm
+from .models import DataRecord
 
 
 
 
-# from django.http import JsonResponse
-# from .models import DataRecord
+from django.http import JsonResponse
+from .models import DataRecord
 
-# def get_retailer_number(request):
-#     retailer_id = request.GET.get('retailer_id')
-#     if retailer_id:
-#         try:
-#             data_record = DataRecord.objects.get(retailer_id=retailer_id)
+def get_retailer_number(request):
+    retailer_id = request.GET.get('retailer_id')
+    if retailer_id:
+        try:
+            data_record = DataRecord.objects.get(retailer_id=retailer_id)
            
-#             return JsonResponse({'retailer_number': data_record.retailer_msisdn,'Franchise_ID': data_record.second_parent_id,
-#             'Region': data_record.second_parent_region})
-#         except DataRecord.DoesNotExist:
-#             return JsonResponse({'retailer_number': None})
-#     return JsonResponse({'retailer_number': None})
+            return JsonResponse({'retailer_number': data_record.retailer_msisdn,'Franchise_ID': data_record.second_parent_id,
+            'Region': data_record.second_parent_region})
+        except DataRecord.DoesNotExist:
+            return JsonResponse({'retailer_number': None})
+    return JsonResponse({'retailer_number': None})
 
-# import io
-# import csv
-# from django.http import HttpResponse
-# from django.shortcuts import render
-# from openpyxl import load_workbook
-# from .forms import FileUploadForm, BVSUploadForm, HeirarchyUploadForm
-# from .models import DataRecord, DataRecordBVS, Heirarchy
+import io
+import csv
+from django.http import HttpResponse
+from django.shortcuts import render
+from openpyxl import load_workbook
+from .forms import FileUploadForm, BVSUploadForm, HeirarchyUploadForm
+from .models import DataRecord, DataRecordBVS, Heirarchy
 
-# def upload_file(request):
-#     form1 = FileUploadForm()
-#     form2 = BVSUploadForm()
-#     form3 = HeirarchyUploadForm()
+def upload_file(request):
+    form1 = FileUploadForm()
+    form2 = BVSUploadForm()
+    form3 = HeirarchyUploadForm()
 
-#     if request.method == 'POST':
-#         if 'upload_csv' in request.POST:
-#             form1 = FileUploadForm(request.POST, request.FILES)
-#             if form1.is_valid():
-#                 csv_file = request.FILES['file']
-#                 decoded_file = csv_file.read().decode('utf-8')
-#                 io_string = io.StringIO(decoded_file)
-#                 csv_reader = csv.reader(io_string, delimiter=',', quotechar='"')
+    if request.method == 'POST':
+        if 'upload_csv' in request.POST:
+            form1 = FileUploadForm(request.POST, request.FILES)
+            if form1.is_valid():
+                csv_file = request.FILES['file']
+                decoded_file = csv_file.read().decode('utf-8')
+                io_string = io.StringIO(decoded_file)
+                csv_reader = csv.reader(io_string, delimiter=',', quotechar='"')
 
-#                 # Clear all existing records for DataRecord
-#                 DataRecord.objects.all().delete()
+                # Clear all existing records for DataRecord
+                DataRecord.objects.all().delete()
 
-#                 # Collect data for bulk creation
-#                 records = [
-#                     DataRecord(
-#                         second_parent_region=row[0],
-#                         second_parent_id=row[1],
-#                         rso_id=row[2],
-#                         rso_msisdn=row[3],
-#                         retailer_id=row[4],
-#                         retailer_msisdn=row[5]
-#                     )
-#                     for row in csv_reader
-#                 ]
+                # Collect data for bulk creation
+                records = [
+                    DataRecord(
+                        second_parent_region=row[0],
+                        second_parent_id=row[1],
+                        rso_id=row[2],
+                        rso_msisdn=row[3],
+                        retailer_id=row[4],
+                        retailer_msisdn=row[5]
+                    )
+                    for row in csv_reader
+                ]
 
-#                 DataRecord.objects.bulk_create(records)
-#                 return HttpResponse('CSV file for DataRecord uploaded and data inserted successfully.')
+                DataRecord.objects.bulk_create(records)
+                return HttpResponse('CSV file for DataRecord uploaded and data inserted successfully.')
 
-#         elif 'upload_bvs_xlsx' in request.POST:
-#             form2 = BVSUploadForm(request.POST, request.FILES)
-#             if form2.is_valid():
-#                 excel_file = request.FILES['file']
-#                 wb = load_workbook(excel_file)
-#                 sheet = wb.active
+        elif 'upload_bvs_xlsx' in request.POST:
+            form2 = BVSUploadForm(request.POST, request.FILES)
+            if form2.is_valid():
+                excel_file = request.FILES['file']
+                wb = load_workbook(excel_file)
+                sheet = wb.active
 
-#                 # Clear all existing records for DataRecordBVS
-#                 DataRecordBVS.objects.all().delete()
+                # Clear all existing records for DataRecordBVS
+                DataRecordBVS.objects.all().delete()
 
-#                 records = [
-#                     DataRecordBVS(Device_ID=row[0], retailer_id=row[2])
-#                     for row in sheet.iter_rows(min_row=2, values_only=True)
-#                 ]
+                records = [
+                    DataRecordBVS(Device_ID=row[0], retailer_id=row[2])
+                    for row in sheet.iter_rows(min_row=2, values_only=True)
+                ]
 
-#                 DataRecordBVS.objects.bulk_create(records)
-#                 return HttpResponse('XLSX file for DataRecordBVS uploaded and data inserted successfully.')
+                DataRecordBVS.objects.bulk_create(records)
+                return HttpResponse('XLSX file for DataRecordBVS uploaded and data inserted successfully.')
 
-#         elif 'upload_heirarchy_xlsx' in request.POST:
-#             form3 = HeirarchyUploadForm(request.POST, request.FILES)
-#             if form3.is_valid():
-#                 excel_file = request.FILES['file']
-#                 wb = load_workbook(excel_file)
-#                 sheet = wb["HQ"]  # Explicitly select the "HQ" sheet
+        elif 'upload_heirarchy_xlsx' in request.POST:
+            form3 = HeirarchyUploadForm(request.POST, request.FILES)
+            if form3.is_valid():
+                excel_file = request.FILES['file']
+                wb = load_workbook(excel_file)
+                sheet = wb["HQ"]  # Explicitly select the "HQ" sheet
 
-#                 # Clear all existing records for Heirarchy
-#                 Heirarchy.objects.all().delete()
+                # Clear all existing records for Heirarchy
+                Heirarchy.objects.all().delete()
 
-#                 records = [
-#                     Heirarchy(Franchise_ID=row[0], Grid=row[10],Cluster=row[23])
-#                     for row in sheet.iter_rows(min_row=3, values_only=True)
-#                 ]
+                records = [
+                    Heirarchy(Franchise_ID=row[0], Grid=row[10],Cluster=row[23])
+                    for row in sheet.iter_rows(min_row=3, values_only=True)
+                ]
 
-#                 Heirarchy.objects.bulk_create(records)
-#                 return HttpResponse('XLSX file for Heirarchy uploaded and data inserted successfully.')
+                Heirarchy.objects.bulk_create(records)
+                return HttpResponse('XLSX file for Heirarchy uploaded and data inserted successfully.')
 
-#     return render(request, 'upload.html', {'form1': form1, 'form2': form2, 'form3': form3})
+    return render(request, 'upload.html', {'form1': form1, 'form2': form2, 'form3': form3})
 
-# from .models import DataRecordBVS
-# from django.http import JsonResponse
-# from .models import DataRecordBVS,Heirarchy
+from .models import DataRecordBVS
+from django.http import JsonResponse
+from .models import DataRecordBVS,Heirarchy
 
-# from django.http import JsonResponse
-# from myapp.models import Heirarchy  # Import your model
+from django.http import JsonResponse
+from myapp.models import Heirarchy  # Import your model
 
 def get_Cluster(request):
     Franchise_ID = request.GET.get('Franchise_ID')
@@ -438,39 +379,39 @@ def contact_delete(request, contact_id):
     print("Invalid request method:", request.method)  # Debugging
     return JsonResponse({"error": "Invalid request"}, status=400)
 
-# from django.shortcuts import render
-# from django.http import HttpResponse
-# from reportlab.lib.pagesizes import letter
-# from reportlab.pdfgen import canvas
-# from .models import Contact  # Import your contact model
+from django.shortcuts import render
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from .models import Contact  # Import your contact model
 
-# def generate_oath_pdf(request, contact_id):
-#     # Retrieve the contact from the database using the contact ID
-#     contact = Contact.objects.get(id=contact_id)
+def generate_oath_pdf(request, contact_id):
+    # Retrieve the contact from the database using the contact ID
+    contact = Contact.objects.get(id=contact_id)
     
-#     # Create the PDF response
-#     response = HttpResponse(content_type='application/pdf')
-#     response['Content-Disposition'] = f'attachment; filename="{contact.DSO_Name}_Oath_Form.pdf"'
+    # Create the PDF response
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{contact.DSO_Name}_Oath_Form.pdf"'
     
-#     # Create a canvas object to generate the PDF
-#     pdf = canvas.Canvas(response, pagesize=letter)
+    # Create a canvas object to generate the PDF
+    pdf = canvas.Canvas(response, pagesize=letter)
     
-#     # Leave half the page blank
-#     pdf.drawString(100, 100, "")
+    # Leave half the page blank
+    pdf.drawString(100, 100, "")
     
-#     # Set up the oath statement
-#     pdf.setFont("Helvetica", 12)
-#     pdf.drawString(80, 250, "I, _____, S/O _____, work at Zong Franchise __________________ as a ________________.")
-#     pdf.drawString(80, 230, f"The BVS device assigned to me has the IMEI number {contact.BVS_Device}.")
-#     pdf.drawString(80, 210, "I understand that I will be held responsible for any unlawful activity involving this device,")
-#     pdf.drawString(80, 190, "and the company reserves the right to take legal action against me.")
+    # Set up the oath statement
+    pdf.setFont("Helvetica", 12)
+    pdf.drawString(80, 250, "I, _____, S/O _____, work at Zong Franchise __________________ as a ________________.")
+    pdf.drawString(80, 230, f"The BVS device assigned to me has the IMEI number {contact.BVS_Device}.")
+    pdf.drawString(80, 210, "I understand that I will be held responsible for any unlawful activity involving this device,")
+    pdf.drawString(80, 190, "and the company reserves the right to take legal action against me.")
     
-#     # Add signature line
-#     pdf.drawString(80, 150, "Signature: ____________________________")
-#     pdf.drawString(80, 130, "Date: ________________________________")
+    # Add signature line
+    pdf.drawString(80, 150, "Signature: ____________________________")
+    pdf.drawString(80, 130, "Date: ________________________________")
     
-#     # Save the PDF
-#     pdf.showPage()
-#     pdf.save()
+    # Save the PDF
+    pdf.showPage()
+    pdf.save()
     
-#     return response
+    return response
