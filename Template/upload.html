@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Files</title>
+</head>
+<body>
+    <h1>Upload Files</h1>
+
+    <!-- Form for uploading DataRecord (CSV) -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2>Upload CSV for DataRecord</h2>
+        {{ form1.as_p }}
+        <button type="submit" name="upload_csv">Upload CSV</button>
+    </form>
+
+    <br>
+
+    <!-- Form for uploading DataRecordBVS (XLSX) -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2>Upload XLSX for DataRecordBVS</h2>
+        {{ form2.as_p }}
+        <button type="submit" name="upload_bvs_xlsx">Upload XLSX</button>
+    </form>
+
+    <br>
+
+    <!-- Form for uploading Heirarchy (XLSX) -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2>Upload XLSX for Heirarchy</h2>
+        {{ form3.as_p }}
+        <button type="submit" name="upload_heirarchy_xlsx">Upload XLSX</button>
+    </form>
+</body>
+</html>

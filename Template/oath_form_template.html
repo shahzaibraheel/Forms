@@ -1,0 +1,89 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Oath Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 40px;
+        }
+        .oath-form {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .oath-form label {
+            font-weight: bold;
+            display: block;
+            margin: 5px 0;
+        }
+        .oath-form input, .oath-form textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Oath Form</h1>
+    <div class="oath-form">
+        <label for="contactDSOName">DSO Name:</label>
+        <input type="text" id="contactDSOName" name="contactDSOName" value="{{ contact.DSO_Name }}" readonly>
+
+        <label for="bvsDevice">BVS Device:</label>
+        <input type="text" id="bvsDevice" name="bvsDevice" value="{{ contact.BVS_Device }}" readonly>
+
+        <label for="oathStatement">Oath Statement:</label>
+        <textarea id="oathStatement" name="oathStatement" readonly>
+            I, {{ contact.DSO_Name }}, take full responsibility for the proper handling, usage, and maintenance of the BVS Device. I affirm that the BVS Device will be used strictly according to the established protocols and guidelines. Any mismanagement or misuse of the device will be held against me.
+        </textarea>
+    </div>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Oath Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            margin: 40px;
+        }
+        .oath-form {
+            margin-top: 250px; /* Leaves half the page blank */
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .oath-form label {
+            font-weight: bold;
+            display: block;
+            margin: 5px 0;
+        }
+        .oath-form input, .oath-form textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Oath Form</h1>
+    <div class="oath-form">
+        <label for="oathStatement">Oath Statement:</label>
+        <textarea id="oathStatement" name="oathStatement" readonly>
+            I, {{ contact.DSO_Name }}, S/O _____, work at Zong Franchise __________________ as a ________________. 
+            The BVS device assigned to me has the IMEI number ____________________. 
+            I understand that I will be held responsible for any unlawful activity involving this device, 
+            and the company reserves the right to take legal action against me.
+        </textarea>
+    </div>
+</body>
+</html>

@@ -14,9 +14,9 @@
             <!-- Hidden input to store the temporarily changed value -->
             <input type="hidden" id="field_changed_value" name="field_changed_value">
 
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="submit" class="btn btn-primary" style="background-color: #9c3; border-color: #9c3; color: white;">Save Changes</button>
         </form>
-        <a href="/contact/" class="btn btn-secondary mt-3">Back to Contact Form</a>
+        <a href="/contact/list/" class="btn btn-secondary mt-3" style="background-color: #9c3; border-color: #9c3; color: white;">Back to Retailer List</a>
     </div>
 
     <script>
@@ -39,6 +39,109 @@
                 let changedValue = document.querySelector(`[name="${changedField}"]`).value;
                 document.getElementById('field_changed_value').value = changedValue;
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            submitButton.addEventListener('click', function(event) {
+                event.preventDefault();  // Prevent form submission immediately
+                
+                let formIsValid = true;
+                
+                // Clear previous error messages and red border styles
+                const errorMessages = document.querySelectorAll('.error-message');
+                const errorFields = document.querySelectorAll('.is-invalid');
+                errorMessages.forEach(function(errorMessage) {
+                    errorMessage.remove();
+                });
+                errorFields.forEach(function(field) {
+                    field.classList.remove('is-invalid');
+                });
+
+                const fieldsToCheck = [
+                    { 
+                        id: 'id_Retailer_ID', 
+                        errorMsg: 'Retailer ID cannot be empty.',
+                        validation: value => value.trim() !== ''
+                    },
+                    { 
+                        id: 'id_Franchise_ID', 
+                        errorMsg: 'Franchise ID cannot be empty.',
+                        validation: value => value.trim() !== ''
+                    },
+                    { 
+                        id: 'id_Grid', 
+                        errorMsg: 'Grid should be in the format "C2001".',
+                        validation: value => /^[A-Za-z]{1}\d{4}$/.test(value)
+                    },
+                    { 
+                        id: 'id_CNIC', 
+                        errorMsg: 'CNIC must be exactly 13 digits.',
+                        validation: value => /^\d{13}$/.test(value)
+                    },
+                   
+                    { 
+                        id: 'id_Retailer_Number', 
+                        errorMsg: 'Retailer Number must be 12 digits and in this format: 923120000000.',
+                        validation: value => /^\d{12}$/.test(value)
+                    },
+                    { 
+                        id: 'id_Cluster', 
+                        errorMsg: 'Cluster cannot be empty.',
+                        validation: value => value.trim() !== ''
+                    },
+                   
+                    { 
+                        id: 'id_DSO_Name', 
+                        errorMsg: 'DSO Name cannot be empty.',
+                        validation: value => value.trim() !== ''
+                    },
+                    { 
+                        id: 'id_Region', 
+                        errorMsg: 'Region cannot be empty.',
+                        validation: value => value.trim() !== ''
+                    },
+                    { 
+                        id: 'id_BVS_Device', 
+                        errorMsg: 'BVS Device cannot be empty.',
+                        validation: value => value.trim() !== ''
+                    },
+                ];
+
+                fieldsToCheck.forEach(field => {
+                    const fieldElement = document.getElementById(field.id);
+                    const fieldValue = fieldElement ? fieldElement.value : '';
+                    
+                    // Apply custom validation for each field
+                    if (!field.validation(fieldValue)) {
+                        formIsValid = false;
+                        
+                        // Create and display the error message
+                        const errorMessage = document.createElement('div');
+                        errorMessage.classList.add('text-danger', 'error-message');
+                        errorMessage.textContent = field.errorMsg;
+                        
+                        // Ensure fieldElement and parentElement exist
+                        if (fieldElement && fieldElement.parentElement) {
+                            // Insert the error message below the input field
+                            fieldElement.parentElement.appendChild(errorMessage);
+                        }
+
+                        // Add the 'is-invalid' class to highlight the input field with a red border
+                        fieldElement.classList.add('is-invalid');
+                        
+                        // Focus on the field with the error
+                        fieldElement.focus();
+                    }
+                });
+                
+                // If the form is valid, submit it
+                if (formIsValid) {
+                    form.submit();  // Submit the form if validation passes
+                }
+            });
         });
     </script>
 {% endblock %}

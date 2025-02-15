@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <div class="container mt-5">
-        <h1>Retailer List</h1>
+        <h1>RSO List</h1>
         <div class="table-responsive" style="overflow-x: auto;">
             <table class="table table-bordered table-hover" style="table-layout: fixed; width: 100%;">
                 <thead class="table-dark">
@@ -169,12 +169,12 @@
                                     <div class="mb-3">
                                         {{ form.Category.label_tag }}
                                         <select id="id_Category" class="form-control" disabled>
-                                            <option value="Retailer" selected>Retailer</option>
+                                            <option value="RSO" selected>RSO</option>
                                         </select>
                                     </div>
                                     
                                     <!-- Hidden input to submit the value -->
-                                    <input type="hidden" name="Category" value="Retailer">
+                                    <input type="hidden" name="Category" value="RSO">
                                     
                                     <div class="mb-3">
                                         {{ form.Other_Contact_Number.label_tag }}
