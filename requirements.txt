@@ -11,5 +11,5 @@ reportlab
 pymysql
 psycopg2-binary
 supabase
-
+openpyxl
 
