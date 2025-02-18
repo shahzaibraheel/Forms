@@ -1,5 +1,5 @@
 {
-    "buildCommand": "python manage.py migrate",
+    "buildCommand": "python manage.py migrate && python manage.py collectstatic --noinput",
     "builds": [
         {
             "src": "Forms/wsgi.py",
@@ -13,4 +13,5 @@
             "dest": "Forms/wsgi.py"
         }
     ],
-    "public": "static" 
+    "public": "static"
+}
