@@ -13,5 +13,4 @@
             "dest": "Forms/wsgi.py"
         }
     ],
-    "public": "static"  // Add this line to serve static files from the 'static' folder
-}
+    "public": "static" 
