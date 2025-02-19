@@ -25,13 +25,52 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Contact
 import json
 
-@csrf_exempt  # For simplicity, exempt CSRF validation in this example
+# @csrf_exempt  # For simplicity, exempt CSRF validation in this example
+# def check_retailer_id(request):
+#     retailer_id = request.GET.get('retailer_id')
+#     if retailer_id and Contact.objects.filter(Retailer_ID=retailer_id).exists():
+#         return JsonResponse({'exists': True})
+#     return JsonResponse({'exists': False})
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from myapp.models import Contact, DataRecord  # Ensure these models are imported
+
+@csrf_exempt  
+@login_required
 def check_retailer_id(request):
     retailer_id = request.GET.get('retailer_id')
-    if retailer_id and Contact.objects.filter(Retailer_ID=retailer_id).exists():
-        return JsonResponse({'exists': True})
-    return JsonResponse({'exists': False})
+    print(retailer_id)
+    username = request.user.username  # Get logged-in user's username
 
+    print(f"Logged-in Username: {username}")  # Debugging
+
+    if retailer_id:
+        # ✅ Step 1: Check if Retailer ID exists in Contact table
+        if Contact.objects.filter(Retailer_ID=retailer_id).exists():
+            return JsonResponse({'exists': True, 'error': 'Retailer ID already exists.'}, status=400)
+
+        try:
+            # ✅ Step 2: Check if Retailer ID exists in DataRecord table
+            data_record = DataRecord.objects.get(retailer_id=retailer_id)  # Fixed field name
+            franchise_id = data_record.second_parent_id  # Fixed field name
+
+            print(f"Fetched Franchise_ID from DB: {franchise_id}")  # Debugging
+
+            # ✅ Step 3: Check if Franchise_ID matches the logged-in username
+            if franchise_id != username:
+                return JsonResponse({'exists': True, 'error': 'You are not authorized to use this Retailer ID.'}, status=403)
+
+            # ✅ Step 4: Allow submission if Retailer ID exists but Franchise matches
+            return JsonResponse({'exists': False, 'authorized': True})  # ✅ Changed from 400 error to success
+
+        except DataRecord.DoesNotExist:
+            # ✅ Step 5: If Retailer ID does not exist in both tables, allow submission
+            return JsonResponse({'exists': False, 'authorized': True})
+
+    return JsonResponse({'exists': False, 'authorized': False})
 
 
 from django.contrib.auth.decorators import login_required
@@ -302,7 +341,7 @@ def upload_file(request):
                 Heirarchy.objects.all().delete()
 
                 records = [
-                    Heirarchy(Franchise_ID=row[0], Grid=row[10],Cluster=row[23])
+                    Heirarchy(Franchise_ID=row[0], Grid=row[1],Cluster=row[2])
                     for row in sheet.iter_rows(min_row=3, values_only=True)
                 ]
 
