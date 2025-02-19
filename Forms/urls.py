@@ -23,6 +23,7 @@ urlpatterns = [
     path('contact/list/', contact_list_view, name='contact_list'),  # List URL
     path('DSO/list/', DSO_list_view, name='DSO_List'),  # List URL
     path('RSO/list/', RSO_list_view, name='RSO_list'),  # List URL
+    path('WIC/list/', WIC_list_view, name='WIC_list'),  # List URL
     path('contact/edit/<int:pk>/', contact_edit_view, name='contact_edit'),
     path('login/', login_view, name="login"),
     path('upload/', upload_file, name='upload_file'),
