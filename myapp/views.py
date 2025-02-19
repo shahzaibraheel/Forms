@@ -192,6 +192,22 @@ def DSO_list_view(request):
 
     return render(request, 'DSO_List.html', {'form': form, 'contacts': contacts})
 
+@login_required
+def WIC_list_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save data to the database
+            # Redirect to the same page after saving the form data
+            return redirect('WIC_list')  # Replace 'contact_list' with your URL name for the contact list view
+    else:
+        form = ContactForm()
+
+    # Apply the filter where Category is 'DSO'
+    contacts = Contact.objects.filter(Category='WIC',Franchise_ID=request.user.username)  # Only fetch records where Category = 'DSO'
+
+    return render(request, 'WIC_list.html', {'form': form, 'contacts': contacts})
+
 
 
 @login_required
