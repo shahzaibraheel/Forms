@@ -174,7 +174,7 @@
                                     </div>
                                     
                                     <!-- Hidden input to submit the value -->
-                                    <input type="hidden" name="Category" value="RSO">
+                                    <input type="hidden" name="Category" value="Retailer">
                                     
                                     <div class="mb-3">
                                         {{ form.Other_Contact_Number.label_tag }}
@@ -348,31 +348,217 @@ function clearRetailerIdError() {
     document.getElementById('id_Retailer_ID').classList.remove('is-invalid');
 }
 
-// Optionally, you can disable the submit button until validation passes
+// // Optionally, you can disable the submit button until validation passes
+// document.getElementById('id_Retailer_ID').addEventListener('input', function() {
+//     // Perform a real-time check to disable/enable submit button
+//     const retailerId = this.value.trim();
+//     if (retailerId) {
+//         fetch(`/check-retailer-id/?retailer_id=${retailerId}`)
+//             .then(response => response.json())
+//             .then(data => {
+//                 const submitButton = document.querySelector('button[type="submit"]');
+//                 if (data.exists) {
+//                     showRetailerIdError('This Retailer ID already exists.');
+//                     submitButton.disabled = true;
+//                 } else {
+//                     clearRetailerIdError();
+//                     submitButton.disabled = false;
+//                 }
+//             })
+//             .catch(error => console.error('Error checking Retailer ID:', error));
+//     } else {
+//         clearRetailerIdError();
+//         document.querySelector('button[type="submit"]').disabled = true;
+//     }
+// });
+// document.getElementById('id_Retailer_ID').addEventListener('input', function() {
+//     const retailerId = this.value.trim();
+//     const username = document.getElementById('id_username').value.trim();  // Get the username input
+
+//     if (retailerId) {
+//         fetch(`/check-retailer-id/?retailer_id=${retailerId}&username=${username}`)
+//             .then(response => response.json())
+//             .then(data => {
+//                 const submitButton = document.querySelector('button[type="submit"]');
+//                 if (data.exists) {
+//                     showRetailerIdError('This Retailer ID already exists.');
+//                     submitButton.disabled = true;
+//                 } else if (data.error) {
+//                     showRetailerIdError(data.error);
+//                     submitButton.disabled = true;
+//                 } else {
+//                     clearRetailerIdError();
+//                     submitButton.disabled = false;
+//                 }
+//             })
+//             .catch(error => console.error('Error checking Retailer ID:', error));
+//     } else {
+//         clearRetailerIdError();
+//         document.querySelector('button[type="submit"]').disabled = true;
+//     }
+// });
+
+
+
+// function displayError(inputId, errorMsg) {
+//     const inputElement = document.getElementById(inputId);
+//     let errorMessage = document.querySelector(`#${inputId} + .error-message`);
+//     if (!errorMessage) {
+//         errorMessage = document.createElement('div');
+//         errorMessage.classList.add('text-danger', 'error-message');
+//         errorMessage.textContent = errorMsg;
+//         inputElement.parentElement.appendChild(errorMessage);
+//     }
+//     inputElement.classList.add('is-invalid');
+// }
+
+// function removeError(inputId) {
+//     const inputElement = document.getElementById(inputId);
+//     const errorMessage = document.querySelector(`#${inputId} + .error-message`);
+//     if (errorMessage) {
+//         errorMessage.remove();
+//     }
+//     inputElement.classList.remove('is-invalid');
+// }
+
+// document.addEventListener('DOMContentLoaded', function() {
+//     const form = document.querySelector('#addContactModal form');
+
+//     form.addEventListener('submit', async function(event) {
+//         event.preventDefault();
+//         let formIsValid = true;
+        
+//         // Clear previous error messages
+//         document.querySelectorAll('.error-message').forEach(el => el.remove());
+//         document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+
+//         const fieldsToCheck = [
+//             { 
+//                 id: 'id_Retailer_ID', 
+//                 errorMsg: 'Retailer ID cannot be empty.',
+//                 validation: value => value.trim() !== ''
+//             },
+//             { 
+//                 id: 'id_Retailer_ID', 
+//                 errorMsg: 'Retailer ID already exists.',
+//                 validation: async value => {
+//                     if (value.trim() === '') return true;
+//                     try {
+//                         const response = await fetch(`/check-retailer-id/?retailer_id=${value}`);
+//                         const data = await response.json();
+//                         return !data.exists;
+//                     } catch (error) {
+//                         console.error('Error checking Retailer ID:', error);
+//                         return false;
+//                     }
+//                 }
+//             },
+//             { 
+//                 id: 'id_Franchise_ID', 
+//                 errorMsg: 'Franchise ID cannot be empty.',
+//                 validation: value => value.trim() !== ''
+//             },
+//             { 
+//                 id: 'id_Grid', 
+//                 errorMsg: 'Grid should be in the format "C2001".',
+//                 validation: value => /^[A-Za-z]{1}\d{4}$/.test(value)
+//             },
+//             { 
+//                 id: 'id_CNIC', 
+//                 errorMsg: 'CNIC must be exactly 13 digits.',
+//                 validation: value => /^\d{13}$/.test(value)
+//             },
+//             { 
+//                 id: 'id_Retailer_Number', 
+//                 errorMsg: 'Retailer Number must be in format: 923120000000.',
+//                 validation: value => /^\d{12}$/.test(value)
+//             },
+//             { 
+//                 id: 'id_Other_Contact_Number', 
+//                 errorMsg: 'Retailer Number must be in format: 923120000000.',
+//                 validation: value => /^\d{12}$/.test(value)
+//             },
+//             { 
+//                 id: 'id_BVS_Device', 
+//                 errorMsg: 'BVS Device cannot be empty.',
+//                 validation: value => value.trim() !== ''
+//             },
+//             { 
+//                 id: 'id_Cluster', 
+//                 errorMsg: 'Cluster cannot be empty.',
+//                 validation: value => value.trim() !== ''
+//             },
+//             { 
+//                 id: 'id_Region', 
+//                 errorMsg: 'Region cannot be empty.',
+//                 validation: value => value.trim() !== ''
+//             },
+//             { 
+//                 id: 'id_Category', 
+//                 errorMsg: 'Category cannot be empty.',
+//                 validation: value => value.trim() !== ''
+//             },
+//             { 
+//                 id: 'id_Location', 
+//                 errorMsg: 'Location cannot be empty.',
+//                 validation: value => value.trim() !== ''
+//             },
+//             { 
+//                 id: 'id_DSO_Name', 
+//                 errorMsg: 'DSO Name cannot be empty.',
+//                 validation: value => value.trim() !== ''
+//             },
+           
+//         ];
+
+//         const validationPromises = fieldsToCheck.map(async field => {
+//             const fieldElement = document.getElementById(field.id);
+//             if (!fieldElement) return true;
+            
+//             const fieldValue = fieldElement.value;
+//             const isValid = field.validation.constructor.name === 'AsyncFunction' 
+//                 ? await field.validation(fieldValue) 
+//                 : field.validation(fieldValue);
+            
+//             if (!isValid) {
+//                 formIsValid = false;
+//                 const errorMessage = document.createElement('div');
+//                 errorMessage.classList.add('text-danger', 'error-message');
+//                 errorMessage.textContent = field.errorMsg;
+//                 fieldElement.classList.add('is-invalid');
+//                 fieldElement.parentElement.appendChild(errorMessage);
+//             }
+//         });
+
+//         await Promise.all(validationPromises);
+
+//         if (formIsValid) {
+//             form.submit();
+//         }
+//     });
+// });
 document.getElementById('id_Retailer_ID').addEventListener('input', function() {
-    // Perform a real-time check to disable/enable submit button
     const retailerId = this.value.trim();
+    const submitButton = document.querySelector('button[type="submit"]');
+
     if (retailerId) {
         fetch(`/check-retailer-id/?retailer_id=${retailerId}`)
             .then(response => response.json())
             .then(data => {
-                const submitButton = document.querySelector('button[type="submit"]');
                 if (data.exists) {
-                    showRetailerIdError('This Retailer ID already exists.');
+                    displayError('id_Retailer_ID', data.error);
                     submitButton.disabled = true;
                 } else {
-                    clearRetailerIdError();
+                    removeError('id_Retailer_ID');
                     submitButton.disabled = false;
                 }
             })
             .catch(error => console.error('Error checking Retailer ID:', error));
     } else {
-        clearRetailerIdError();
-        document.querySelector('button[type="submit"]').disabled = true;
+        removeError('id_Retailer_ID');
+        submitButton.disabled = true;
     }
 });
-  
-
 
 function displayError(inputId, errorMsg) {
     const inputElement = document.getElementById(inputId);
@@ -395,112 +581,176 @@ function removeError(inputId) {
     inputElement.classList.remove('is-invalid');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+// Helper functions to show and clear errors
+function showRetailerIdError(errorMsg) {
+    const inputElement = document.getElementById('id_Retailer_ID');
+    let errorMessage = document.querySelector('#id_Retailer_ID + .error-message');
+
+    if (!errorMessage) {
+        errorMessage = document.createElement('div');
+        errorMessage.classList.add('text-danger', 'error-message');
+        inputElement.parentElement.appendChild(errorMessage);
+    }
+
+    errorMessage.textContent = errorMsg;
+    inputElement.classList.add('is-invalid');
+}
+
+function clearRetailerIdError() {
+    const inputElement = document.getElementById('id_Retailer_ID');
+    const errorMessage = document.querySelector('#id_Retailer_ID + .error-message');
+
+    if (errorMessage) {
+        errorMessage.remove();
+    }
+    
+    inputElement.classList.remove('is-invalid');
+}
+
+
+// Function to display error messages
+function displayError(inputId, errorMsg) {
+    const inputElement = document.getElementById(inputId);
+    let errorMessage = document.querySelector(`#${inputId} + .error-message`);
+
+    if (!errorMessage) {
+        errorMessage = document.createElement('div');
+        errorMessage.classList.add('text-danger', 'error-message');
+        errorMessage.textContent = errorMsg;
+        inputElement.parentElement.appendChild(errorMessage);
+    } else {
+        errorMessage.textContent = errorMsg; // Update existing error message
+    }
+
+    inputElement.classList.add('is-invalid');
+}
+
+// Function to remove error messages
+function removeError(inputId) {
+    const inputElement = document.getElementById(inputId);
+    const errorMessage = document.querySelector(`#${inputId} + .error-message`);
+    
+    if (errorMessage) {
+        errorMessage.remove();
+    }
+    inputElement.classList.remove('is-invalid');
+}
+
+
+
+
+// Function to clear error message
+function clearRetailerIdError() {
+    const errorContainer = document.getElementById('retailer-id-error');
+    if (errorContainer) {
+        errorContainer.remove();
+    }
+    document.getElementById('id_Retailer_ID').classList.remove('is-invalid');
+}
+
+// Ensure the form is validated before submission
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('#addContactModal form');
 
-    form.addEventListener('submit', async function(event) {
+    form.addEventListener('submit', async function (event) {
         event.preventDefault();
         let formIsValid = true;
-        
-        // Clear previous error messages
+
+        // Clear previous errors
         document.querySelectorAll('.error-message').forEach(el => el.remove());
         document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
 
+        // Fields to validate
         const fieldsToCheck = [
-            { 
-                id: 'id_Retailer_ID', 
+            {
+                id: 'id_Retailer_ID',
                 errorMsg: 'Retailer ID cannot be empty.',
                 validation: value => value.trim() !== ''
             },
-            { 
-                id: 'id_Retailer_ID', 
-                errorMsg: 'Retailer ID already exists.',
+            {
+                id: 'id_Retailer_ID',
+                errorMsg: 'Retailer ID already exists or belongs to some other ID.',
                 validation: async value => {
                     if (value.trim() === '') return true;
                     try {
-                        const response = await fetch(`/check-retailer-id/?retailer_id=${value}`);
+                        const response = await fetch(`/check-retailer-id/?retailer_id=${encodeURIComponent(value)}`);
                         const data = await response.json();
-                        return !data.exists;
+                        return !data.exists && !data.error;
                     } catch (error) {
                         console.error('Error checking Retailer ID:', error);
                         return false;
                     }
                 }
             },
-            { 
-                id: 'id_Franchise_ID', 
+            {
+                id: 'id_Franchise_ID',
                 errorMsg: 'Franchise ID cannot be empty.',
                 validation: value => value.trim() !== ''
             },
-            { 
-                id: 'id_Grid', 
+            {
+                id: 'id_Grid',
                 errorMsg: 'Grid should be in the format "C2001".',
                 validation: value => /^[A-Za-z]{1}\d{4}$/.test(value)
             },
-            { 
-                id: 'id_CNIC', 
+            {
+                id: 'id_CNIC',
                 errorMsg: 'CNIC must be exactly 13 digits.',
                 validation: value => /^\d{13}$/.test(value)
             },
-            { 
-                id: 'id_Retailer_Number', 
+            {
+                id: 'id_Retailer_Number',
                 errorMsg: 'Retailer Number must be in format: 923120000000.',
                 validation: value => /^\d{12}$/.test(value)
             },
-            { 
-                id: 'id_Other_Contact_Number', 
-                errorMsg: 'Retailer Number must be in format: 923120000000.',
+            {
+                id: 'id_Other_Contact_Number',
+                errorMsg: 'Other Contact Number must be in format: 923120000000.',
                 validation: value => /^\d{12}$/.test(value)
             },
-            { 
-                id: 'id_BVS_Device', 
+            {
+                id: 'id_BVS_Device',
                 errorMsg: 'BVS Device cannot be empty.',
                 validation: value => value.trim() !== ''
             },
-            { 
-                id: 'id_Cluster', 
+            {
+                id: 'id_Cluster',
                 errorMsg: 'Cluster cannot be empty.',
                 validation: value => value.trim() !== ''
             },
-            { 
-                id: 'id_Region', 
+            {
+                id: 'id_Region',
                 errorMsg: 'Region cannot be empty.',
                 validation: value => value.trim() !== ''
             },
-            { 
-                id: 'id_Category', 
+            {
+                id: 'id_Category',
                 errorMsg: 'Category cannot be empty.',
                 validation: value => value.trim() !== ''
             },
-            { 
-                id: 'id_Location', 
+            {
+                id: 'id_Location',
                 errorMsg: 'Location cannot be empty.',
                 validation: value => value.trim() !== ''
             },
-            { 
-                id: 'id_DSO_Name', 
+            {
+                id: 'id_DSO_Name',
                 errorMsg: 'DSO Name cannot be empty.',
                 validation: value => value.trim() !== ''
-            },
-           
+            }
         ];
 
         const validationPromises = fieldsToCheck.map(async field => {
             const fieldElement = document.getElementById(field.id);
             if (!fieldElement) return true;
-            
+
             const fieldValue = fieldElement.value;
-            const isValid = field.validation.constructor.name === 'AsyncFunction' 
-                ? await field.validation(fieldValue) 
+            const isValid = field.validation.constructor.name === 'AsyncFunction'
+                ? await field.validation(fieldValue)
                 : field.validation(fieldValue);
-            
+
             if (!isValid) {
                 formIsValid = false;
-                const errorMessage = document.createElement('div');
-                errorMessage.classList.add('text-danger', 'error-message');
-                errorMessage.textContent = field.errorMsg;
-                fieldElement.classList.add('is-invalid');
-                fieldElement.parentElement.appendChild(errorMessage);
+                displayError(field.id, field.errorMsg);
             }
         });
 
@@ -511,6 +761,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Function to display field-specific error messages
+function displayError(inputId, errorMsg) {
+    const inputElement = document.getElementById(inputId);
+    let errorMessage = document.querySelector(`#${inputId} + .error-message`);
+
+    if (!errorMessage) {
+        errorMessage = document.createElement('div');
+        errorMessage.classList.add('text-danger', 'error-message');
+        inputElement.parentElement.appendChild(errorMessage);
+    }
+
+    errorMessage.textContent = errorMsg;
+    inputElement.classList.add('is-invalid');
+}
+
+// Function to remove field-specific errors
+function removeError(inputId) {
+    const inputElement = document.getElementById(inputId);
+    const errorMessage = document.querySelector(`#${inputId} + .error-message`);
+
+    if (errorMessage) {
+        errorMessage.remove();
+    }
+    inputElement.classList.remove('is-invalid');
+}
+
 
 
     </script>
