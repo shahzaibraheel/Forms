@@ -18,6 +18,7 @@
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Retailer_NO</th>
                         <th style="width: 90px; word-wrap: break-word; white-space: normal; font-size: 12px;">DSO_Name</th>
                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">BVS_Device</th>
+                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">CNIC</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Location</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Category</th>
                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">Other Contact #</th>
@@ -34,6 +35,7 @@
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Retailer_Number }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.DSO_Name }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.BVS_Device }}</td>
+                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.CNIC}}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Location }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Category }}</td>
                        
@@ -136,12 +138,12 @@
                                     <div class="mb-3">
                                         {{ form.Category.label_tag }}
                                         <select id="id_Category" class="form-control" disabled>
-                                            <option value="DSO" selected>DSO</option>
+                                            <option value="Retailer" selected>Retailer</option>
                                         </select>
                                     </div>
                                     
                                     <!-- Hidden input to submit the value -->
-                                    <input type="hidden" name="Category" value="DSO">
+                                    <input type="hidden" name="Category" value="Retailer">
                                     
                                     <div class="mb-3">
                                         {{ form.Other_Contact_Number.label_tag }}
