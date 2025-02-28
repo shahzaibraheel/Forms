@@ -25,13 +25,67 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Contact
 import json
 
-# @csrf_exempt  # For simplicity, exempt CSRF validation in this example
-# def check_retailer_id(request):
-#     retailer_id = request.GET.get('retailer_id')
-#     if retailer_id and Contact.objects.filter(Retailer_ID=retailer_id).exists():
-#         return JsonResponse({'exists': True})
-#     return JsonResponse({'exists': False})
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Contact  # Make sure your model is correctly imported
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Contact  # Ensure your model is correctly imported
+
+@csrf_exempt  # Remove this if CSRF protection is needed
+def check_BVS_Device(request):
+    BVS_Device = request.GET.get('BVS_Device')
+    contact = Contact.objects.filter(BVS_Device=BVS_Device).first()  # Get the first match if exists
+
+    if contact:
+        return JsonResponse({'exists': True, 'retailer_id': contact.Retailer_ID, 'category':contact.Category})  # Assuming retailer_id is a field
+
+    return JsonResponse({'exists': False})
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+import pytz
+from django.utils.timezone import now
+from .models import Contact, edit_contact  # Adjust import based on your project structure
+
+@csrf_exempt  # Remove if CSRF protection is enabled
+def update_BVS_Device(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        BVS_Device = data.get("BVS_Device")
+
+        # Find the existing contact with this BVS device
+        contact = Contact.objects.filter(BVS_Device=BVS_Device).first()
+        if contact:
+            # Convert timestamp to Pakistan Standard Time (PST)
+            pakistan_tz = pytz.timezone('Asia/Karachi')
+            pakistan_time = now().astimezone(pakistan_tz)
+
+            # Move previous record to edit_contact before updating the Contact model
+            edit_contact.objects.create(
+                Retailer_ID=contact.Retailer_ID,
+                Franchise_ID=contact.Franchise_ID,
+                Retailer_Number=contact.Retailer_Number,
+                DSO_Name=contact.DSO_Name,
+                CNIC=contact.CNIC,
+                BVS_Device=contact.BVS_Device,  # Store previous BVS device
+                Location=contact.Location,
+                username=request.user.username if request.user.is_authenticated else "Unknown",
+                Category=contact.Category,
+                Other_Contact_Number=contact.Other_Contact_Number,
+                Date_of_Joining=contact.Date_of_Joining,
+                Date_of_Resignation=contact.Date_of_Resignation,  # Maintain existing resignation date
+                Date_of_Data_Entry=pakistan_time
+            )
+
+            # Set BVS_Device to None for the existing record
+            contact.BVS_Device = None
+            contact.save()
+
+            return JsonResponse({"success": True})
+
+    return JsonResponse({"success": False})
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -80,47 +134,119 @@ from .models import ContactChangeLog
 import pytz
 from django.utils.timezone import now
 
+# @login_required
+# def contact_edit_view(request, pk):
+#     contact = get_object_or_404(Contact, pk=pk)
+
+#     if request.method == 'POST':
+#         form = ContactForm(request.POST, instance=contact)
+
+#         if form.is_valid():
+#             # Fetch the original instance from the database again to ensure consistency
+#             original_contact = Contact.objects.get(pk=pk)
+            
+#             # Track changes dynamically
+#             changes = {}
+
+#             # Get the dynamically changed fields from the form
+#             for field in form.changed_data:
+#                 old_value = getattr(original_contact, field)  # Old value from the database
+#                 new_value = form.cleaned_data[field]  # New value from the form
+
+#                 # Add the change to the dictionary
+#                 changes[field] = {
+#                     "old": old_value,
+#                     "new": new_value,
+#                 }
+
+#             # Save the updated contact
+#             form.save()
+
+#             # Convert the timestamp to Pakistan Standard Time (PST)
+#             pakistan_tz = pytz.timezone('Asia/Karachi')
+#             timestamp = now().astimezone(pakistan_tz)
+
+#             # Log changes dynamically
+#             for field, change in changes.items():
+#                 ContactChangeLog.objects.create(
+#                     username=request.user.username,
+#                     contact=contact,
+#                     field_name=field,
+#                     old_value=change["old"],
+#                     new_value=change["new"],
+#                     timestamp=timestamp,
+#                 )
+
+#             return redirect('contact_edit', pk=pk)
+
+#     else:
+#         form = ContactForm(instance=contact)
+
+#     # Pass the original field values to the template
+#     initial_values = {field.name: getattr(contact, field.name) for field in form}
+
+#     return render(request, 'edit_contact.html', {'form': form, 'contact': contact, 'initial_values': initial_values})
+from django.utils.timezone import now
+import pytz
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Contact, ContactChangeLog, edit_contact  # Ensure EditContact model is defined
+from .forms import ContactForm
+
 @login_required
 def contact_edit_view(request, pk):
     contact = get_object_or_404(Contact, pk=pk)
+    user = request.user  # Get logged-in user
 
     if request.method == 'POST':
         form = ContactForm(request.POST, instance=contact)
 
         if form.is_valid():
-            # Fetch the original instance from the database again to ensure consistency
+            # Fetch the original instance before updating
             original_contact = Contact.objects.get(pk=pk)
-            
+
+            # Convert timestamp to Pakistan Standard Time (PST)
+            pakistan_tz = pytz.timezone('Asia/Karachi')
+            pakistan_time = now().astimezone(pakistan_tz)
+
+            # Move record to edit_contact table before updating
+            edit_contact.objects.create(
+                Retailer_ID=original_contact.Retailer_ID,
+                Franchise_ID=original_contact.Franchise_ID,
+                Retailer_Number=original_contact.Retailer_Number,
+                DSO_Name=original_contact.DSO_Name,
+                CNIC=original_contact.CNIC,
+                BVS_Device=original_contact.BVS_Device,
+                Location=original_contact.Location,
+                username=user.username,  # Store the username of the logged-in user
+                Category=original_contact.Category,
+                Other_Contact_Number=original_contact.Other_Contact_Number,
+                Date_of_Joining=original_contact.Date_of_Joining,
+                Date_of_Resignation=original_contact.Date_of_Resignation,  # Set resignation date to today
+                Date_of_Data_Entry=pakistan_time
+            )
+
             # Track changes dynamically
             changes = {}
 
-            # Get the dynamically changed fields from the form
             for field in form.changed_data:
-                old_value = getattr(original_contact, field)  # Old value from the database
-                new_value = form.cleaned_data[field]  # New value from the form
+                old_value = getattr(original_contact, field)
+                new_value = form.cleaned_data[field]
 
-                # Add the change to the dictionary
-                changes[field] = {
-                    "old": old_value,
-                    "new": new_value,
-                }
+                changes[field] = {"old": old_value, "new": new_value}
 
             # Save the updated contact
             form.save()
 
-            # Convert the timestamp to Pakistan Standard Time (PST)
-            pakistan_tz = pytz.timezone('Asia/Karachi')
-            timestamp = now().astimezone(pakistan_tz)
-
             # Log changes dynamically
             for field, change in changes.items():
                 ContactChangeLog.objects.create(
-                    username=request.user.username,
+                    username=user.username,
                     contact=contact,
                     field_name=field,
                     old_value=change["old"],
                     new_value=change["new"],
-                    timestamp=timestamp,
+                    timestamp=pakistan_time,
                 )
 
             return redirect('contact_edit', pk=pk)
@@ -128,27 +254,13 @@ def contact_edit_view(request, pk):
     else:
         form = ContactForm(instance=contact)
 
-    # Pass the original field values to the template
     initial_values = {field.name: getattr(contact, field.name) for field in form}
 
     return render(request, 'edit_contact.html', {'form': form, 'contact': contact, 'initial_values': initial_values})
 
 from django.shortcuts import redirect
 
-# @login_required
-# def contact_list_view(request):
-#     if request.method == 'POST':
-#         form = ContactForm(request.POST)
-#         if form.is_valid():
-#             form.save()  # Save data to the database
-#             # Redirect to the same page after saving the form data
-#             return redirect('contact_list')  # Replace 'contact_list' with your URL name for the contact list view
-        
-#     else:
-#         form = ContactForm()
 
-#     contacts = Contact.objects.all()  # Fetch all records from the database
-#     return render(request, 'contact_list.html', {'form': form, 'contacts': contacts})
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import Contact
@@ -172,9 +284,9 @@ def contact_list_view(request):
 
 
 from django.shortcuts import render, redirect
-from .forms import ContactForm
-from .models import Contact
 from django.contrib.auth.decorators import login_required
+from .models import Contact
+from .forms import ContactForm
 
 @login_required
 def DSO_list_view(request):
@@ -182,32 +294,15 @@ def DSO_list_view(request):
         form = ContactForm(request.POST)
         if form.is_valid():
             form.save()  # Save data to the database
-            # Redirect to the same page after saving the form data
-            return redirect('DSO_List')  # Replace 'contact_list' with your URL name for the contact list view
+            return redirect('DSO_List')  # Redirect after saving
+
     else:
         form = ContactForm()
 
-    # Apply the filter where Category is 'DSO'
-    contacts = Contact.objects.filter(Category='DSO',Franchise_ID=request.user.username)  # Only fetch records where Category = 'DSO'
+    # Fetch contacts where Category is 'DSO' and Date_of_Resignation is NULL
+    contacts = Contact.objects.filter(Category='DSO', Franchise_ID=request.user.username,Date_of_Resignation__isnull=True)
 
     return render(request, 'DSO_List.html', {'form': form, 'contacts': contacts})
-
-@login_required
-def WIC_list_view(request):
-    if request.method == 'POST':
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            form.save()  # Save data to the database
-            # Redirect to the same page after saving the form data
-            return redirect('WIC_list')  # Replace 'contact_list' with your URL name for the contact list view
-    else:
-        form = ContactForm()
-
-    # Apply the filter where Category is 'DSO'
-    contacts = Contact.objects.filter(Category='WIC',Franchise_ID=request.user.username)  # Only fetch records where Category = 'DSO'
-
-    return render(request, 'WIC_list.html', {'form': form, 'contacts': contacts})
-
 
 
 @login_required
@@ -224,6 +319,21 @@ def RSO_list_view(request):
 
     contacts = Contact.objects.filter(Category='RSO',Franchise_ID=request.user.username) # Fetch all records from the database
     return render(request, 'RSO_list.html', {'form': form, 'contacts': contacts})   
+@login_required
+def WIC_list_view(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save data to the database
+            # Redirect to the same page after saving the form data
+            return redirect('WIC_list')  # Replace 'contact_list' with your URL name for the contact list view
+    else:
+        form = ContactForm()
+
+    # Apply the filter where Category is 'DSO'
+    contacts = Contact.objects.filter(Category='WIC',Franchise_ID=request.user.username)  # Only fetch records where Category = 'DSO'
+
+    return render(request, 'WIC_list.html', {'form': form, 'contacts': contacts})
 
 
 from django.contrib.auth import authenticate, login
@@ -246,7 +356,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("/DSO/list")  # Redirect to home or dashboard page
+            return redirect("/contact/list")  # Redirect to home or dashboard page
         else:
             msg = "Invalid credentials"
     elif request.method == "POST":
@@ -254,13 +364,7 @@ def login_view(request):
 
     return render(request, "Login.html", {"form": form, "msg": msg})
 
-# views.py
-import io
-import csv
-from django.shortcuts import render
-from django.http import HttpResponse
-from .forms import FileUploadForm
-from .models import DataRecord
+
 
 import io
 import csv
@@ -420,6 +524,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
 
+from django.utils.timezone import now
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Contact,delete_contact  # Ensure this imports your Contact model
+
 @login_required
 def contact_delete(request, contact_id):  
     print("Delete view called with ID:", contact_id)  # Debugging
@@ -428,11 +538,43 @@ def contact_delete(request, contact_id):
 
     if request.method == 'POST':
         print("Request method is POST")  # Debugging
+        user = request.user  # Get the logged-in user
+
+        # Get Pakistan timezone
+        pakistan_tz = pytz.timezone('Asia/Karachi')
+        pakistan_time = now().astimezone(pakistan_tz)
+
+        # Extract resignation date from request
+        resignation_date = request.POST.get('Date_of_Resignation')
+
+        if not resignation_date:  # Ensure it's provided
+            return JsonResponse({"error": "Date of Resignation is required"}, status=400)
+
+        # Move record to delete_contact table
+        delete_contact.objects.create(
+            Retailer_ID=contact.Retailer_ID,
+            Franchise_ID=contact.Franchise_ID,
+            Retailer_Number=contact.Retailer_Number,
+            DSO_Name=contact.DSO_Name,
+            CNIC=contact.CNIC,
+            BVS_Device=contact.BVS_Device,
+            Location=contact.Location,
+            username=user.username,  # Store the username of the logged-in user
+            Category=contact.Category,
+            Other_Contact_Number=contact.Other_Contact_Number,
+            Date_of_Joining=contact.Date_of_Joining,
+            Date_of_Resignation=resignation_date,  # Use received date
+            Date_of_Data_Entry=pakistan_time
+        )
+
+        # Delete the original contact
         contact.delete()
-        return JsonResponse({"message": "Contact deleted successfully"}, status=200)
+
+        return JsonResponse({"message": "Contact moved to delete_contact and deleted from myapp_contact"}, status=200)
 
     print("Invalid request method:", request.method)  # Debugging
     return JsonResponse({"error": "Invalid request"}, status=400)
+
 
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -470,3 +612,10 @@ def generate_oath_pdf(request, contact_id):
     pdf.save()
     
     return response
+
+
+from django.utils.timezone import activate
+import pytz
+
+activate(pytz.timezone('Asia/Karachi'))  # Force Django to use Asia/Karachi
+
