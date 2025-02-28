@@ -7,8 +7,8 @@ from myapp.views import contact_list_view,DSO_list_view,RSO_list_view,contact_de
 from myapp.views import contact_edit_view
 from myapp.views import login_view
 from myapp.views import upload_file
-from myapp.views import get_retailer_number,contact_delete
-from myapp.views import get_bvs_number, get_Cluster,check_retailer_id
+from myapp.views import get_retailer_number,contact_delete,update_BVS_Device
+from myapp.views import get_bvs_number, get_Cluster,check_retailer_id,check_BVS_Device
 from django.contrib.auth.views import LogoutView
 
 
@@ -31,6 +31,8 @@ urlpatterns = [
     path('get-bvs-number/', get_bvs_number, name='get_bvs_number'),
     path('get_Cluster/', get_Cluster, name='get_Cluster'),
     path('check-retailer-id/', check_retailer_id, name='check_retailer_id'),
+    path('check-BVS-Device/', check_BVS_Device, name='check_BVS_Device'),
+    path('update-BVS-Device/', update_BVS_Device, name='update_BVS_Device'),
     path('logout/', LogoutView.as_view(), name='logout'),  # Add this line
 
 ]
