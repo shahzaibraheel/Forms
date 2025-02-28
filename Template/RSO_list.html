@@ -2,7 +2,7 @@
 
 {% block content %}
     <meta charset="UTF-8">
-    <title>Contact List</title>
+    <title>RSO List</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
@@ -14,10 +14,7 @@
                     <tr>
                         <th style="width: 93px; word-wrap: break-word; white-space: normal; font-size: 12px;">Retailer_ID</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Franchise_ID</th>
-                        <th style="width: 60px; word-wrap: break-word; white-space: normal; font-size: 12px;">Grid</th>
-                        <th style="width: 90px; word-wrap: break-word; white-space: normal; font-size: 12px;">Cluster</th>
-                        <th style="width: 105px; word-wrap: break-word; white-space: normal; font-size: 12px;">CNIC</th>
-                        <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Region</th>
+                        <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Joining Date</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Retailer_NO</th>
                         <th style="width: 90px; word-wrap: break-word; white-space: normal; font-size: 12px;">DSO_Name</th>
                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">BVS_Device</th>
@@ -33,15 +30,13 @@
                     <tr>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Retailer_ID }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Franchise_ID }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Grid }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Cluster }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.CNIC }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Region }}</td>
+                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Date_of_Joining }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Retailer_Number }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.DSO_Name }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.BVS_Device }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Location }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Category }}</td>
+                       
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Other_Contact_Number }}</td>
                         <td>
                             <a href="{% url 'contact_edit' contact.pk %}" class="btn btn-primary btn-sm" style="background-color: #9c3; border-color: #9c3; color: white;">
@@ -79,29 +74,7 @@
 
 
 
-    <!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this contact?</p>
-            </div>
-            <div class="modal-footer">
-                <!-- Cancel Button -->
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <!-- Delete Button -->
-                <form id="deleteForm" method="POST">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+
 
     
 
@@ -128,17 +101,11 @@
                                         {{ form.Franchise_ID }}
                                     </div>
                                     <div class="mb-3">
-                                        {{ form.Grid.label_tag }}
-                                        {{ form.Grid }}
+                                        {{ form.Date_of_Joining.label_tag }}
+                                        {{ form.Date_of_Joining }}
                                     </div>
-                                    <div class="mb-3">
-                                        {{ form.Cluster.label_tag }}
-                                        {{ form.Cluster }}
-                                    </div>
-                                    <div class="mb-3">
-                                        {{ form.Region.label_tag }}
-                                        {{ form.Region }}
-                                    </div>
+                                  
+                                   
                                     <div class="mb-3">
                                         {{ form.Retailer_Number.label_tag }}
                                         {{ form.Retailer_Number }}
@@ -169,12 +136,12 @@
                                     <div class="mb-3">
                                         {{ form.Category.label_tag }}
                                         <select id="id_Category" class="form-control" disabled>
-                                            <option value="RSO" selected>RSO</option>
+                                            <option value="DSO" selected>DSO</option>
                                         </select>
                                     </div>
                                     
                                     <!-- Hidden input to submit the value -->
-                                    <input type="hidden" name="Category" value="RSO">
+                                    <input type="hidden" name="Category" value="DSO">
                                     
                                     <div class="mb-3">
                                         {{ form.Other_Contact_Number.label_tag }}
@@ -195,11 +162,42 @@
             </div>
         </div>
     </div>
+ <!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this contact?</p>
+                <!-- Date of Resignation Input -->
+                <label for="Date_of_Resignation">Date of Resignation:</label>
+                <input type="date" id="Date_of_Resignation" name="Date_of_Resignation" required>
+            </div>
+            <div class="modal-footer">
+                <!-- Cancel Button -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <!-- Delete Button -->
+                <form id="deleteForm" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="bvs-error-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black; z-index: 1000;">
+    <p id="bvs-error-message"></p>
+    <button id="bvs-modal-yes">Yes</button>
+    <button id="bvs-modal-no">No</button>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
- 
-    <script type="text/javascript">
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="text/javascript">
 document.querySelectorAll('button[data-bs-target="#deleteModal"]').forEach(button => {
     button.addEventListener('click', function() {
         const contactId = this.getAttribute('data-id');
@@ -220,11 +218,20 @@ document.querySelectorAll('button[data-bs-target="#deleteModal"]').forEach(butto
 document.getElementById('deleteForm').addEventListener('submit', function(event) {
     event.preventDefault();  // Prevent default to check submission first
     console.log("Delete form submitted!");
-    
-    // Manually submit the form (ensuring it's a POST request)
+
+    const resignationDate = document.getElementById('Date_of_Resignation').value;
+    if (!resignationDate) {
+        console.error("Date of Resignation is required!");
+        alert("Please select a Date of Resignation before deleting.");
+        return;
+    }
+
+    let formData = new FormData(this);
+    formData.append('Date_of_Resignation', resignationDate);  // Add resignation date to formData
+
     fetch(this.action, {
         method: "POST",
-        body: new FormData(this),
+        body: formData,
     })
     .then(response => response.json())
     .then(data => {
@@ -238,58 +245,8 @@ document.getElementById('deleteForm').addEventListener('submit', function(event)
     .catch(error => console.error("Error:", error));
 });
 
-document.getElementById('id_Retailer_ID').addEventListener('input', function() {
-    let retailerId = this.value; // Get the input value
-    if (retailerId) {
-         // Fetch data from the second endpoint (/get-bvs-number/)
-         fetch(`/get-bvs-number/?retailer_id=${retailerId}`)
-            .then(response => response.json())
-            .then(data => {
-                // Update the BVS Device ID field
-                document.getElementById('id_BVS_Device').value = data.Device_ID || '';
-            })
-            .catch(error => console.error('Error fetching BVS number:', error));
-        // Fetch data from the first endpoint (/get-retailer-number/)
-        fetch(`/get-retailer-number/?retailer_id=${retailerId}`)
-            .then(response => response.json())
-            .then(data => {
-                // Update form fields with data from the response
-                document.getElementById('id_Retailer_Number').value = data.retailer_number || '';
-                const franchiseField = document.getElementById('id_Franchise_ID');
-                franchiseField.value = data.Franchise_ID || '';
-                document.getElementById('id_Region').value = data.Region || '';
 
-                // Explicitly trigger the input event
-                franchiseField.dispatchEvent(new Event('input'));
-            })
-            .catch(error => console.error('Error fetching retailer number:', error));
 
-       
-    }
-});
-
-    document.addEventListener('DOMContentLoaded', function() {
-    const franchiseField = document.getElementById('id_Franchise_ID');
-    if (franchiseField) {
-        console.log('Franchise_ID field found:', franchiseField.value);
-        franchiseField.addEventListener('input', function() {
-            let FranchiseID = this.value;
-            console.log('Franchise_ID input triggered:', FranchiseID);
-            if (FranchiseID) {
-                fetch(`/get_Cluster/?Franchise_ID=${FranchiseID}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Cluster API response:', data);
-                        document.getElementById('id_Grid').value = data.Grid || '';
-                        document.getElementById('id_Cluster').value = data.Cluster || '';
-                    })
-                    .catch(error => console.error('Error fetching Cluster data:', error));
-            }
-        });
-    } else {
-        console.error("Franchise_ID field not found.");
-    }
-});
 document.querySelector('form').addEventListener('submit', function(event) {
     let formIsValid = true;
     
@@ -348,218 +305,134 @@ function clearRetailerIdError() {
     document.getElementById('id_Retailer_ID').classList.remove('is-invalid');
 }
 
-// // Optionally, you can disable the submit button until validation passes
-// document.getElementById('id_Retailer_ID').addEventListener('input', function() {
-//     // Perform a real-time check to disable/enable submit button
-//     const retailerId = this.value.trim();
-//     if (retailerId) {
-//         fetch(`/check-retailer-id/?retailer_id=${retailerId}`)
-//             .then(response => response.json())
-//             .then(data => {
-//                 const submitButton = document.querySelector('button[type="submit"]');
-//                 if (data.exists) {
-//                     showRetailerIdError('This Retailer ID already exists.');
-//                     submitButton.disabled = true;
-//                 } else {
-//                     clearRetailerIdError();
-//                     submitButton.disabled = false;
-//                 }
-//             })
-//             .catch(error => console.error('Error checking Retailer ID:', error));
-//     } else {
-//         clearRetailerIdError();
-//         document.querySelector('button[type="submit"]').disabled = true;
-//     }
-// });
-// document.getElementById('id_Retailer_ID').addEventListener('input', function() {
-//     const retailerId = this.value.trim();
-//     const username = document.getElementById('id_username').value.trim();  // Get the username input
-
-//     if (retailerId) {
-//         fetch(`/check-retailer-id/?retailer_id=${retailerId}&username=${username}`)
-//             .then(response => response.json())
-//             .then(data => {
-//                 const submitButton = document.querySelector('button[type="submit"]');
-//                 if (data.exists) {
-//                     showRetailerIdError('This Retailer ID already exists.');
-//                     submitButton.disabled = true;
-//                 } else if (data.error) {
-//                     showRetailerIdError(data.error);
-//                     submitButton.disabled = true;
-//                 } else {
-//                     clearRetailerIdError();
-//                     submitButton.disabled = false;
-//                 }
-//             })
-//             .catch(error => console.error('Error checking Retailer ID:', error));
-//     } else {
-//         clearRetailerIdError();
-//         document.querySelector('button[type="submit"]').disabled = true;
-//     }
-// });
-
-
-
-// function displayError(inputId, errorMsg) {
-//     const inputElement = document.getElementById(inputId);
-//     let errorMessage = document.querySelector(`#${inputId} + .error-message`);
-//     if (!errorMessage) {
-//         errorMessage = document.createElement('div');
-//         errorMessage.classList.add('text-danger', 'error-message');
-//         errorMessage.textContent = errorMsg;
-//         inputElement.parentElement.appendChild(errorMessage);
-//     }
-//     inputElement.classList.add('is-invalid');
-// }
-
-// function removeError(inputId) {
-//     const inputElement = document.getElementById(inputId);
-//     const errorMessage = document.querySelector(`#${inputId} + .error-message`);
-//     if (errorMessage) {
-//         errorMessage.remove();
-//     }
-//     inputElement.classList.remove('is-invalid');
-// }
-
-// document.addEventListener('DOMContentLoaded', function() {
-//     const form = document.querySelector('#addContactModal form');
-
-//     form.addEventListener('submit', async function(event) {
-//         event.preventDefault();
-//         let formIsValid = true;
-        
-//         // Clear previous error messages
-//         document.querySelectorAll('.error-message').forEach(el => el.remove());
-//         document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-
-//         const fieldsToCheck = [
-//             { 
-//                 id: 'id_Retailer_ID', 
-//                 errorMsg: 'Retailer ID cannot be empty.',
-//                 validation: value => value.trim() !== ''
-//             },
-//             { 
-//                 id: 'id_Retailer_ID', 
-//                 errorMsg: 'Retailer ID already exists.',
-//                 validation: async value => {
-//                     if (value.trim() === '') return true;
-//                     try {
-//                         const response = await fetch(`/check-retailer-id/?retailer_id=${value}`);
-//                         const data = await response.json();
-//                         return !data.exists;
-//                     } catch (error) {
-//                         console.error('Error checking Retailer ID:', error);
-//                         return false;
-//                     }
-//                 }
-//             },
-//             { 
-//                 id: 'id_Franchise_ID', 
-//                 errorMsg: 'Franchise ID cannot be empty.',
-//                 validation: value => value.trim() !== ''
-//             },
-//             { 
-//                 id: 'id_Grid', 
-//                 errorMsg: 'Grid should be in the format "C2001".',
-//                 validation: value => /^[A-Za-z]{1}\d{4}$/.test(value)
-//             },
-//             { 
-//                 id: 'id_CNIC', 
-//                 errorMsg: 'CNIC must be exactly 13 digits.',
-//                 validation: value => /^\d{13}$/.test(value)
-//             },
-//             { 
-//                 id: 'id_Retailer_Number', 
-//                 errorMsg: 'Retailer Number must be in format: 923120000000.',
-//                 validation: value => /^\d{12}$/.test(value)
-//             },
-//             { 
-//                 id: 'id_Other_Contact_Number', 
-//                 errorMsg: 'Retailer Number must be in format: 923120000000.',
-//                 validation: value => /^\d{12}$/.test(value)
-//             },
-//             { 
-//                 id: 'id_BVS_Device', 
-//                 errorMsg: 'BVS Device cannot be empty.',
-//                 validation: value => value.trim() !== ''
-//             },
-//             { 
-//                 id: 'id_Cluster', 
-//                 errorMsg: 'Cluster cannot be empty.',
-//                 validation: value => value.trim() !== ''
-//             },
-//             { 
-//                 id: 'id_Region', 
-//                 errorMsg: 'Region cannot be empty.',
-//                 validation: value => value.trim() !== ''
-//             },
-//             { 
-//                 id: 'id_Category', 
-//                 errorMsg: 'Category cannot be empty.',
-//                 validation: value => value.trim() !== ''
-//             },
-//             { 
-//                 id: 'id_Location', 
-//                 errorMsg: 'Location cannot be empty.',
-//                 validation: value => value.trim() !== ''
-//             },
-//             { 
-//                 id: 'id_DSO_Name', 
-//                 errorMsg: 'DSO Name cannot be empty.',
-//                 validation: value => value.trim() !== ''
-//             },
-           
-//         ];
-
-//         const validationPromises = fieldsToCheck.map(async field => {
-//             const fieldElement = document.getElementById(field.id);
-//             if (!fieldElement) return true;
-            
-//             const fieldValue = fieldElement.value;
-//             const isValid = field.validation.constructor.name === 'AsyncFunction' 
-//                 ? await field.validation(fieldValue) 
-//                 : field.validation(fieldValue);
-            
-//             if (!isValid) {
-//                 formIsValid = false;
-//                 const errorMessage = document.createElement('div');
-//                 errorMessage.classList.add('text-danger', 'error-message');
-//                 errorMessage.textContent = field.errorMsg;
-//                 fieldElement.classList.add('is-invalid');
-//                 fieldElement.parentElement.appendChild(errorMessage);
-//             }
-//         });
-
-//         await Promise.all(validationPromises);
-
-//         if (formIsValid) {
-//             form.submit();
-//         }
-//     });
-// });
+// Optionally, you can disable the submit button until validation passes
 document.getElementById('id_Retailer_ID').addEventListener('input', function() {
+    // Perform a real-time check to disable/enable submit button
     const retailerId = this.value.trim();
-    const submitButton = document.querySelector('button[type="submit"]');
-
     if (retailerId) {
         fetch(`/check-retailer-id/?retailer_id=${retailerId}`)
             .then(response => response.json())
             .then(data => {
+                const submitButton = document.querySelector('button[type="submit"]');
                 if (data.exists) {
-                    displayError('id_Retailer_ID', data.error);
+                    showRetailerIdError('This Retailer ID already exists or You are not Authorized to use this ID.');
                     submitButton.disabled = true;
                 } else {
-                    removeError('id_Retailer_ID');
+                    clearRetailerIdError();
                     submitButton.disabled = false;
                 }
             })
             .catch(error => console.error('Error checking Retailer ID:', error));
     } else {
-        removeError('id_Retailer_ID');
-        submitButton.disabled = true;
+        clearRetailerIdError();
+        document.querySelector('button[type="submit"]').disabled = true;
+    }
+});
+ 
+document.getElementById('id_BVS_Device').addEventListener('input', function(event) {
+    const BVS_Device = event.target.value.trim();
+    console.log("BVS Device input detected:", BVS_Device);
+
+    if (BVS_Device) {
+        setTimeout(() => {  // Allow time for pasted values to register
+            fetch(`/check-BVS-Device/?BVS_Device=${BVS_Device}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Response from /check-BVS-Device/:", data);
+
+                    const submitButton = document.querySelector('button[type="submit"]');
+
+                    if (data.exists) {
+                        console.log("BVS Device already exists. Showing error below input.");
+                        showBVSError(data.retailer_id, data.category, BVS_Device);
+                        submitButton.disabled = true;
+                    } else {
+                        console.log("BVS Device is available.");
+                        clearBVSDeviceError();
+                        submitButton.disabled = false;
+                    }
+                })
+                .catch(error => console.error('Error checking BVS Device ID:', error));
+        }, 100); // Delay to capture pasted values
+    } else {
+        console.log("BVS Device input is empty.");
+        clearBVSDeviceError();
+        document.querySelector('button[type="submit"]').disabled = true;
     }
 });
 
+function showBVSError(retailerId, category, BVS_Device) {
+    let errorElement = document.getElementById('BVS_Device-error');
+    if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.id = 'BVS_Device-error';
+        errorElement.classList.add('text-danger', 'error-message');
+        document.getElementById('id_BVS_Device').parentElement.appendChild(errorElement);
+    }
+
+    errorElement.innerHTML = `
+        This BVS device is tagged against retailer ID: ${retailerId} (${category}). 
+        <button id="change-tagging-btn" class="btn btn-link p-0">Change Tagging</button>
+    `;
+    
+    document.getElementById('id_BVS_Device').classList.add('is-invalid');
+
+    // Add event listener for "Change Tagging" button
+    document.getElementById('change-tagging-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        showBVSErrorModal(retailerId, category, BVS_Device);
+    });
+}
+
+function clearBVSDeviceError() {
+    const errorElement = document.getElementById('BVS_Device-error');
+    if (errorElement) {
+        errorElement.remove();
+    }
+    document.getElementById('id_BVS_Device').classList.remove('is-invalid');
+}
+
+function showBVSErrorModal(retailerId, category, BVS_Device) {
+    console.log("Displaying error modal for BVS Device:", BVS_Device);
+    const modal = document.getElementById('bvs-error-modal');
+    document.getElementById('bvs-error-message').textContent = 
+        `This BVS device is tagged against retailer ID: ${retailerId} (${category}). Do you want to change tagging?`;
+    modal.style.display = 'block';
+    modal.style.zIndex = '9999'; // Ensure modal appears above everything
+
+    document.getElementById('bvs-modal-yes').onclick = function() {
+        console.log("User clicked YES to update BVS Device.");
+        fetch('/update-BVS-Device/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ BVS_Device: BVS_Device })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Response from /update-BVS-Device/:", data);
+            if (data.success) {
+                alert('Tagging updated successfully.');
+                clearBVSDeviceError();
+            }
+        })
+        .catch(error => console.error('Error updating BVS Device:', error));
+        modal.style.display = 'none';
+    };
+
+    document.getElementById('bvs-modal-no').onclick = function() {
+        console.log("User clicked NO, closing modal.");
+        modal.style.display = 'none';
+    };
+}
+
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+
 function displayError(inputId, errorMsg) {
     const inputElement = document.getElementById(inputId);
     let errorMessage = document.querySelector(`#${inputId} + .error-message`);
@@ -581,176 +454,100 @@ function removeError(inputId) {
     inputElement.classList.remove('is-invalid');
 }
 
-// Helper functions to show and clear errors
-function showRetailerIdError(errorMsg) {
-    const inputElement = document.getElementById('id_Retailer_ID');
-    let errorMessage = document.querySelector('#id_Retailer_ID + .error-message');
-
-    if (!errorMessage) {
-        errorMessage = document.createElement('div');
-        errorMessage.classList.add('text-danger', 'error-message');
-        inputElement.parentElement.appendChild(errorMessage);
-    }
-
-    errorMessage.textContent = errorMsg;
-    inputElement.classList.add('is-invalid');
-}
-
-function clearRetailerIdError() {
-    const inputElement = document.getElementById('id_Retailer_ID');
-    const errorMessage = document.querySelector('#id_Retailer_ID + .error-message');
-
-    if (errorMessage) {
-        errorMessage.remove();
-    }
-    
-    inputElement.classList.remove('is-invalid');
-}
-
-
-// Function to display error messages
-function displayError(inputId, errorMsg) {
-    const inputElement = document.getElementById(inputId);
-    let errorMessage = document.querySelector(`#${inputId} + .error-message`);
-
-    if (!errorMessage) {
-        errorMessage = document.createElement('div');
-        errorMessage.classList.add('text-danger', 'error-message');
-        errorMessage.textContent = errorMsg;
-        inputElement.parentElement.appendChild(errorMessage);
-    } else {
-        errorMessage.textContent = errorMsg; // Update existing error message
-    }
-
-    inputElement.classList.add('is-invalid');
-}
-
-// Function to remove error messages
-function removeError(inputId) {
-    const inputElement = document.getElementById(inputId);
-    const errorMessage = document.querySelector(`#${inputId} + .error-message`);
-    
-    if (errorMessage) {
-        errorMessage.remove();
-    }
-    inputElement.classList.remove('is-invalid');
-}
-
-
-
-
-// Function to clear error message
-function clearRetailerIdError() {
-    const errorContainer = document.getElementById('retailer-id-error');
-    if (errorContainer) {
-        errorContainer.remove();
-    }
-    document.getElementById('id_Retailer_ID').classList.remove('is-invalid');
-}
-
-// Ensure the form is validated before submission
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('#addContactModal form');
 
-    form.addEventListener('submit', async function (event) {
+    form.addEventListener('submit', async function(event) {
         event.preventDefault();
         let formIsValid = true;
-
-        // Clear previous errors
+        
+        // Clear previous error messages
         document.querySelectorAll('.error-message').forEach(el => el.remove());
         document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-
-        // Fields to validate
         const fieldsToCheck = [
-            {
-                id: 'id_Retailer_ID',
-                errorMsg: 'Retailer ID cannot be empty.',
-                validation: value => value.trim() !== ''
-            },
-            {
-                id: 'id_Retailer_ID',
-                errorMsg: 'Retailer ID already exists or belongs to some other ID.',
-                validation: async value => {
-                    if (value.trim() === '') return true;
-                    try {
-                        const response = await fetch(`/check-retailer-id/?retailer_id=${encodeURIComponent(value)}`);
-                        const data = await response.json();
-                        return !data.exists && !data.error;
-                    } catch (error) {
-                        console.error('Error checking Retailer ID:', error);
-                        return false;
-                    }
-                }
-            },
-            {
-                id: 'id_Franchise_ID',
-                errorMsg: 'Franchise ID cannot be empty.',
-                validation: value => value.trim() !== ''
-            },
-            {
-                id: 'id_Grid',
-                errorMsg: 'Grid should be in the format "C2001".',
-                validation: value => /^[A-Za-z]{1}\d{4}$/.test(value)
-            },
-            {
-                id: 'id_CNIC',
-                errorMsg: 'CNIC must be exactly 13 digits.',
-                validation: value => /^\d{13}$/.test(value)
-            },
-            {
-                id: 'id_Retailer_Number',
-                errorMsg: 'Retailer Number must be in format: 923120000000.',
-                validation: value => /^\d{12}$/.test(value)
-            },
-            {
-                id: 'id_Other_Contact_Number',
-                errorMsg: 'Other Contact Number must be in format: 923120000000.',
-                validation: value => /^\d{12}$/.test(value)
-            },
-            {
-                id: 'id_BVS_Device',
-                errorMsg: 'BVS Device cannot be empty.',
-                validation: value => value.trim() !== ''
-            },
-            {
-                id: 'id_Cluster',
-                errorMsg: 'Cluster cannot be empty.',
-                validation: value => value.trim() !== ''
-            },
-            {
-                id: 'id_Region',
-                errorMsg: 'Region cannot be empty.',
-                validation: value => value.trim() !== ''
-            },
-            {
-                id: 'id_Category',
-                errorMsg: 'Category cannot be empty.',
-                validation: value => value.trim() !== ''
-            },
-            {
-                id: 'id_Location',
-                errorMsg: 'Location cannot be empty.',
-                validation: value => value.trim() !== ''
-            },
-            {
-                id: 'id_DSO_Name',
-                errorMsg: 'DSO Name cannot be empty.',
-                validation: value => value.trim() !== ''
+    { 
+        id: 'id_Retailer_ID', 
+        errorMsg: 'Retailer ID cannot be empty.',
+        validation: value => value.trim() !== ''
+    },
+    { 
+        id: 'id_Retailer_ID', 
+        errorMsg: 'Retailer ID already exists.',
+        validation: async value => {
+            if (value.trim() === '') return true;
+            try {
+                const response = await fetch(`/check-retailer-id/?retailer_id=${value}`);
+                const data = await response.json();
+                return !data.exists;
+            } catch (error) {
+                console.error('Error checking Retailer ID:', error);
+                return false;
             }
-        ];
+        }
+    },
+    { 
+        id: 'id_Franchise_ID', 
+        errorMsg: 'Franchise ID cannot be empty.',
+        validation: value => value.trim() !== ''
+    },
+    { 
+        id: 'id_CNIC', 
+        errorMsg: 'CNIC must be exactly 13 digits.',
+        validation: value => /^\d{13}$/.test(value)
+    },
+    { 
+        id: 'id_Retailer_Number', 
+        errorMsg: 'Retailer Number must be in format: 923120000000.',
+        validation: value => /^\d{12}$/.test(value)
+    },
+    { 
+        id: 'id_Other_Contact_Number', 
+        errorMsg: 'Other Contact Number must be in format: 923120000000.',
+        validation: value => /^\d{12}$/.test(value)
+    },
+    { 
+        id: 'id_BVS_Device', 
+        errorMsg: 'BVS Device cannot be empty.',
+        validation: value => value.trim() !== ''
+    },
+    { 
+        id: 'id_Category', 
+        errorMsg: 'Category cannot be empty.',
+        validation: value => value.trim() !== ''
+    },
+    { 
+        id: 'id_Location', 
+        errorMsg: 'Location cannot be empty.',
+        validation: value => value.trim() !== ''
+    },
+    { 
+        id: 'id_DSO_Name', 
+        errorMsg: 'DSO Name cannot be empty.',
+        validation: value => value.trim() !== ''
+    },
+    { 
+        id: 'id_Date_of_Joining', 
+        errorMsg: 'Date of Joining cannot be empty.',
+        validation: value => value.trim() !== ''
+    }
+];
 
         const validationPromises = fieldsToCheck.map(async field => {
             const fieldElement = document.getElementById(field.id);
             if (!fieldElement) return true;
-
+            
             const fieldValue = fieldElement.value;
-            const isValid = field.validation.constructor.name === 'AsyncFunction'
-                ? await field.validation(fieldValue)
+            const isValid = field.validation.constructor.name === 'AsyncFunction' 
+                ? await field.validation(fieldValue) 
                 : field.validation(fieldValue);
-
+            
             if (!isValid) {
                 formIsValid = false;
-                displayError(field.id, field.errorMsg);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('text-danger', 'error-message');
+                errorMessage.textContent = field.errorMsg;
+                fieldElement.classList.add('is-invalid');
+                fieldElement.parentElement.appendChild(errorMessage);
             }
         });
 
@@ -761,33 +558,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
-
-// Function to display field-specific error messages
-function displayError(inputId, errorMsg) {
-    const inputElement = document.getElementById(inputId);
-    let errorMessage = document.querySelector(`#${inputId} + .error-message`);
-
-    if (!errorMessage) {
-        errorMessage = document.createElement('div');
-        errorMessage.classList.add('text-danger', 'error-message');
-        inputElement.parentElement.appendChild(errorMessage);
-    }
-
-    errorMessage.textContent = errorMsg;
-    inputElement.classList.add('is-invalid');
-}
-
-// Function to remove field-specific errors
-function removeError(inputId) {
-    const inputElement = document.getElementById(inputId);
-    const errorMessage = document.querySelector(`#${inputId} + .error-message`);
-
-    if (errorMessage) {
-        errorMessage.remove();
-    }
-    inputElement.classList.remove('is-invalid');
-}
-
 
 
     </script>
