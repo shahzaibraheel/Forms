@@ -5,35 +5,42 @@ from django.db import models
 
 from django.db import models
 from django.core.validators import MinLengthValidator
-
+from django.db import models
+from django.utils.timezone import now
+import pytz
 
 class Contact(models.Model): 
     Retailer_ID = models.CharField(max_length=100, unique=True)
     Franchise_ID = models.CharField(max_length=100)
-    Grid = models.TextField()
-    Cluster = models.TextField()
-    Region = models.TextField()
     Retailer_Number = models.CharField(max_length=100, null=True)
     DSO_Name = models.CharField(max_length=100, null=True)
     CNIC = models.CharField(max_length=15, null=True)
     BVS_Device = models.CharField(max_length=100, null=True)
-  
     Location = models.CharField(max_length=100)
-    
-    # New Category field
+
+    # Category field
     CATEGORY_CHOICES = [
         ('DSO', 'DSO'),
         ('RSO', 'RSO'),
         ('Retailer', 'Retailer'),
         ('Franchise', 'Franchise'),
     ]
-    Category = models.CharField(
-        max_length=20,
-        choices=CATEGORY_CHOICES,
-        default='DSO',  # Set a default choice if necessary
-    )
+    Category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='DSO')
+
+    # Other Contact Number
+    Other_Contact_Number = models.CharField(max_length=13, null=True, blank=True)
+
+    # New Date Fields
+    Date_of_Joining = models.DateField(default='2024-01-01')
+    Date_of_Resignation = models.DateField(null=True, blank=True)
     
-    # New Other_Contact_Number field
+    # Get Pakistani time for Date_of_Data_Entry
+    def get_pakistan_time():
+        pakistan_tz = pytz.timezone('Asia/Karachi')
+        return now().astimezone(pakistan_tz)
+
+    Date_of_Data_Entry = models.DateTimeField(default=get_pakistan_time)
+        # New Other_Contact_Number field
     Other_Contact_Number = models.CharField(
         max_length=13,
         null=True,
@@ -41,7 +48,10 @@ class Contact(models.Model):
     )
 
     def __str__(self):
-        return self.Retailer_ID  # You can return any unique identifier
+        return self.Retailer_ID
+
+
+
 
 
 
@@ -105,3 +115,90 @@ class Heirarchy(models.Model):
 
     def __str__(self):
         return f"{self.Franchise_ID} - {self.Grid}"
+
+
+
+class delete_contact(models.Model): 
+    Retailer_ID = models.CharField(max_length=100, unique=True)
+    Franchise_ID = models.CharField(max_length=100)
+    Retailer_Number = models.CharField(max_length=100, null=True)
+    DSO_Name = models.CharField(max_length=100, null=True)
+    CNIC = models.CharField(max_length=15, null=True)
+    BVS_Device = models.CharField(max_length=100, null=True)
+    Location = models.CharField(max_length=100)
+    username= models.CharField(max_length=100)
+
+    # Category field
+    CATEGORY_CHOICES = [
+        ('DSO', 'DSO'),
+        ('RSO', 'RSO'),
+        ('Retailer', 'Retailer'),
+        ('Franchise', 'Franchise'),
+    ]
+    Category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='DSO')
+
+    # Other Contact Number
+    Other_Contact_Number = models.CharField(max_length=13, null=True, blank=True)
+
+    # New Date Fields
+    Date_of_Joining = models.DateField(default='2024-01-01')
+    Date_of_Resignation = models.DateField(null=True, blank=True)
+    
+    # Get Pakistani time for Date_of_Data_Entry
+    def get_pakistan_time():
+        pakistan_tz = pytz.timezone('Asia/Karachi')
+        return now().astimezone(pakistan_tz)
+
+    Date_of_Data_Entry = models.DateTimeField(default=get_pakistan_time)
+        # New Other_Contact_Number field
+    Other_Contact_Number = models.CharField(
+        max_length=13,
+        null=True,
+        blank=True,  # Allow the field to be left empty
+    )
+
+    def __str__(self):
+        return self.Retailer_ID
+
+
+class edit_contact(models.Model): 
+    Retailer_ID = models.CharField(max_length=100)
+    Franchise_ID = models.CharField(max_length=100)
+    Retailer_Number = models.CharField(max_length=100, null=True)
+    DSO_Name = models.CharField(max_length=100, null=True)
+    CNIC = models.CharField(max_length=15, null=True)
+    BVS_Device = models.CharField(max_length=100, null=True)
+    Location = models.CharField(max_length=100)
+    username= models.CharField(max_length=100)
+
+    # Category field
+    CATEGORY_CHOICES = [
+        ('DSO', 'DSO'),
+        ('RSO', 'RSO'),
+        ('Retailer', 'Retailer'),
+        ('Franchise', 'Franchise'),
+    ]
+    Category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='DSO')
+
+    # Other Contact Number
+    Other_Contact_Number = models.CharField(max_length=13, null=True, blank=True)
+
+    # New Date Fields
+    Date_of_Joining = models.DateField(default='2024-01-01')
+    Date_of_Resignation = models.DateField(null=True, blank=True)
+    
+    # Get Pakistani time for Date_of_Data_Entry
+    def get_pakistan_time():
+        pakistan_tz = pytz.timezone('Asia/Karachi')
+        return now().astimezone(pakistan_tz)
+
+    Date_of_Data_Entry = models.DateTimeField(default=get_pakistan_time)
+        # New Other_Contact_Number field
+    Other_Contact_Number = models.CharField(
+        max_length=13,
+        null=True,
+        blank=True,  # Allow the field to be left empty
+    )
+
+    def __str__(self):
+        return self.Retailer_ID
