@@ -9,139 +9,210 @@
         <h1>Edit Contact</h1>
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            
-            <!-- Hidden input to store the temporarily changed value -->
-            <input type="hidden" id="field_changed_value" name="field_changed_value">
+
+            <!-- Retailer_ID (Readonly) -->
+            <div class="mb-3">
+                <label for="{{ form.Retailer_ID.id_for_label }}" class="form-label">{{ form.Retailer_ID.label }}</label>
+                <input type="text" id="{{ form.Retailer_ID.id_for_label }}" name="{{ form.Retailer_ID.name }}" value="{{ form.Retailer_ID.value }}" class="form-control" readonly>
+            </div>
+
+            <!-- Loop through fields and display them in order -->
+            {% for field in form %}
+            {% if field.name != "Retailer_ID" and field.name != "Category" and field.name != "Date_of_Resignation" and field.name != "Date_of_Data_Entry" %}
+
+                    <div class="mb-3">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Add Category right after Location -->
+                    {% if field.name == "Location" %}
+                        <div class="mb-3">
+                            <label for="{{ form.Category.id_for_label }}" class="form-label">{{ form.Category.label }}</label>
+                            <input type="text" id="{{ form.Category.id_for_label }}" name="{{ form.Category.name }}" value="{{ form.Category.value }}" class="form-control" readonly>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
 
             <button type="submit" class="btn btn-primary" style="background-color: #9c3; border-color: #9c3; color: white;">Save Changes</button>
         </form>
         <a href="/contact/list/" class="btn btn-secondary mt-3" style="background-color: #9c3; border-color: #9c3; color: white;">Back to Retailer List</a>
     </div>
 
+    <div id="bvs-error-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black; z-index: 1000;">
+        <p id="bvs-error-message"></p>
+        <button id="bvs-modal-yes">Yes</button>
+        <button id="bvs-modal-no">No</button>
+    </div>
+    
+
     <script>
-        // JavaScript to track field clicks and store the value in a hidden input field
-        let changedField = '';
-        let originalValue = '';
+       document.getElementById('id_BVS_Device').addEventListener('input', function(event) {
+    const BVS_Device = event.target.value.trim();
+    console.log("BVS Device input detected:", BVS_Device);
 
-        // Listen for clicks on form fields (input, select, textarea)
-        document.querySelectorAll('input, select, textarea').forEach(function(field) {
-            field.addEventListener('click', function() {
-                changedField = field.name;  // Store the field name
-                originalValue = field.value;  // Store the original value
-            });
-        });
+    if (BVS_Device) {
+        setTimeout(() => {  // Allow time for pasted values to register
+            fetch(`/check-BVS-Device/?BVS_Device=${BVS_Device}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Response from /check-BVS-Device/:", data);
 
-        // When the form is submitted, update the hidden field with the changed value
-        document.querySelector('form').addEventListener('submit', function(event) {
-            // If the field was changed, update the hidden field with the changed value
-            if (changedField) {
-                let changedValue = document.querySelector(`[name="${changedField}"]`).value;
-                document.getElementById('field_changed_value').value = changedValue;
+                    const submitButton = document.querySelector('button[type="submit"]');
+
+                    if (data.exists) {
+                        console.log("BVS Device already exists. Showing error below input.");
+                        showBVSError(data.retailer_id, data.category, BVS_Device);
+                        submitButton.disabled = true;
+                    } else {
+                        console.log("BVS Device is available.");
+                        clearBVSDeviceError();
+                        submitButton.disabled = false;
+                    }
+                })
+                .catch(error => console.error('Error checking BVS Device ID:', error));
+        }, 100); // Delay to capture pasted values
+    } else {
+        console.log("BVS Device input is empty.");
+        clearBVSDeviceError();
+        document.querySelector('button[type="submit"]').disabled = true;
+    }
+});
+
+function showBVSError(retailerId, category, BVS_Device) {
+    let errorElement = document.getElementById('BVS_Device-error');
+    if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.id = 'BVS_Device-error';
+        errorElement.classList.add('text-danger', 'error-message');
+        document.getElementById('id_BVS_Device').parentElement.appendChild(errorElement);
+    }
+
+    errorElement.innerHTML = `
+        This BVS device is tagged against retailer ID: ${retailerId} (${category}). 
+        <button id="change-tagging-btn" class="btn btn-link p-0">Change Tagging</button>
+    `;
+    
+    document.getElementById('id_BVS_Device').classList.add('is-invalid');
+
+    // Add event listener for "Change Tagging" button
+    document.getElementById('change-tagging-btn').addEventListener('click', function(event) {
+        event.preventDefault();
+        showBVSErrorModal(retailerId, category, BVS_Device);
+    });
+}
+
+function clearBVSDeviceError() {
+    const errorElement = document.getElementById('BVS_Device-error');
+    if (errorElement) {
+        errorElement.remove();
+    }
+    document.getElementById('id_BVS_Device').classList.remove('is-invalid');
+}
+
+function showBVSErrorModal(retailerId, category, BVS_Device) {
+    console.log("Displaying error modal for BVS Device:", BVS_Device);
+    const modal = document.getElementById('bvs-error-modal');
+    document.getElementById('bvs-error-message').textContent = 
+        `This BVS device is tagged against retailer ID: ${retailerId} (${category}). Do you want to change tagging?`;
+    modal.style.display = 'block';
+    modal.style.zIndex = '9999'; // Ensure modal appears above everything
+
+    document.getElementById('bvs-modal-yes').onclick = function() {
+        console.log("User clicked YES to update BVS Device.");
+        fetch('/update-BVS-Device/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken()
+            },
+            body: JSON.stringify({ BVS_Device: BVS_Device })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Response from /update-BVS-Device/:", data);
+            if (data.success) {
+                alert('Tagging updated successfully.');
+                clearBVSDeviceError();
+                // Fix: Ensure submit button is enabled
+            const submitButton = document.querySelector('button[type="submit"]');
+          
+                submitButton.disabled = false;
+            }
+        })
+        .catch(error => console.error('Error updating BVS Device:', error));
+        modal.style.display = 'none';
+    };
+
+    document.getElementById('bvs-modal-no').onclick = function() {
+        console.log("User clicked NO, closing modal.");
+        modal.style.display = 'none';
+    };
+}
+function getCSRFToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    submitButton.addEventListener('click', function(event) {
+        event.preventDefault();  // Prevent immediate form submission
+        
+        let formIsValid = true;
+
+        // Clear previous error messages
+        document.querySelectorAll('.error-message').forEach(errorMessage => errorMessage.remove());
+        document.querySelectorAll('.is-invalid').forEach(field => field.classList.remove('is-invalid'));
+
+        const fieldsToCheck = [
+    { id: 'id_Retailer_ID', errorMsg: 'Retailer ID cannot be empty.', validation: value => value.trim() !== '' },
+    { id: 'id_Franchise_ID', errorMsg: 'Franchise ID cannot be empty.', validation: value => value.trim() !== '' },
+    { id: 'id_CNIC', errorMsg: 'CNIC must be exactly 13 digits.', validation: value => /^\d{13}$/.test(value) },
+    { id: 'id_Retailer_Number', errorMsg: 'Retailer Number must be 12 digits and in this format: 923120000000.', validation: value => /^\d{12}$/.test(value) },
+    { id: 'id_DSO_Name', errorMsg: 'DSO Name cannot be empty.', validation: value => value.trim() !== '' },
+    { id: 'id_BVS_Device', errorMsg: 'BVS Device cannot be empty.', validation: value => value.trim() !== '' },
+    { id: 'id_Date_of_Joining', errorMsg: 'Date of Joining cannot be empty.', validation: value => value.trim() !== '' }
+];
+
+
+        fieldsToCheck.forEach(field => {
+            const fieldElement = document.getElementById(field.id);
+            if (!fieldElement || !field.validation(fieldElement.value)) {
+                formIsValid = false;
+
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('text-danger', 'error-message');
+                errorMessage.textContent = field.errorMsg;
+                fieldElement.parentElement.appendChild(errorMessage);
+                fieldElement.classList.add('is-invalid');
+                fieldElement.focus();
             }
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-            const submitButton = document.querySelector('button[type="submit"]');
-            
-            submitButton.addEventListener('click', function(event) {
-                event.preventDefault();  // Prevent form submission immediately
-                
-                let formIsValid = true;
-                
-                // Clear previous error messages and red border styles
-                const errorMessages = document.querySelectorAll('.error-message');
-                const errorFields = document.querySelectorAll('.is-invalid');
-                errorMessages.forEach(function(errorMessage) {
-                    errorMessage.remove();
-                });
-                errorFields.forEach(function(field) {
-                    field.classList.remove('is-invalid');
-                });
+        if (formIsValid) {
+            fetch(form.action, {
+                method: form.method,
+                body: new FormData(form),
+            })
+            .then(response => response.ok ? response.text() : Promise.reject('Submission failed'))
+            .then(() => {
+                alert('Record updated successfully!');
+                window.location.href = '/DSO/list';
+            })
+            .catch(error => console.error(error));
+        }
+    });
+});
 
-                const fieldsToCheck = [
-                    { 
-                        id: 'id_Retailer_ID', 
-                        errorMsg: 'Retailer ID cannot be empty.',
-                        validation: value => value.trim() !== ''
-                    },
-                    { 
-                        id: 'id_Franchise_ID', 
-                        errorMsg: 'Franchise ID cannot be empty.',
-                        validation: value => value.trim() !== ''
-                    },
-                    { 
-                        id: 'id_Grid', 
-                        errorMsg: 'Grid should be in the format "C2001".',
-                        validation: value => /^[A-Za-z]{1}\d{4}$/.test(value)
-                    },
-                    { 
-                        id: 'id_CNIC', 
-                        errorMsg: 'CNIC must be exactly 13 digits.',
-                        validation: value => /^\d{13}$/.test(value)
-                    },
-                   
-                    { 
-                        id: 'id_Retailer_Number', 
-                        errorMsg: 'Retailer Number must be 12 digits and in this format: 923120000000.',
-                        validation: value => /^\d{12}$/.test(value)
-                    },
-                    { 
-                        id: 'id_Cluster', 
-                        errorMsg: 'Cluster cannot be empty.',
-                        validation: value => value.trim() !== ''
-                    },
-                   
-                    { 
-                        id: 'id_DSO_Name', 
-                        errorMsg: 'DSO Name cannot be empty.',
-                        validation: value => value.trim() !== ''
-                    },
-                    { 
-                        id: 'id_Region', 
-                        errorMsg: 'Region cannot be empty.',
-                        validation: value => value.trim() !== ''
-                    },
-                    { 
-                        id: 'id_BVS_Device', 
-                        errorMsg: 'BVS Device cannot be empty.',
-                        validation: value => value.trim() !== ''
-                    },
-                ];
-
-                fieldsToCheck.forEach(field => {
-                    const fieldElement = document.getElementById(field.id);
-                    const fieldValue = fieldElement ? fieldElement.value : '';
-                    
-                    // Apply custom validation for each field
-                    if (!field.validation(fieldValue)) {
-                        formIsValid = false;
-                        
-                        // Create and display the error message
-                        const errorMessage = document.createElement('div');
-                        errorMessage.classList.add('text-danger', 'error-message');
-                        errorMessage.textContent = field.errorMsg;
-                        
-                        // Ensure fieldElement and parentElement exist
-                        if (fieldElement && fieldElement.parentElement) {
-                            // Insert the error message below the input field
-                            fieldElement.parentElement.appendChild(errorMessage);
-                        }
-
-                        // Add the 'is-invalid' class to highlight the input field with a red border
-                        fieldElement.classList.add('is-invalid');
-                        
-                        // Focus on the field with the error
-                        fieldElement.focus();
-                    }
-                });
-                
-                // If the form is valid, submit it
-                if (formIsValid) {
-                    form.submit();  // Submit the form if validation passes
-                }
-            });
-        });
     </script>
 {% endblock %}
