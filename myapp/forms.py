@@ -6,12 +6,16 @@ from django import forms
 from django.core.exceptions import ValidationError
 import re
 from .models import Contact
+from datetime import datetime
 
 from django import forms
 from .models import Contact
 from django.core.exceptions import ValidationError
 import re
 from django.core.validators import MinLengthValidator
+import pytz
+from django.utils.timezone import now
+from django.utils.timezone import make_aware
 
 class ContactForm(forms.ModelForm):
     CATEGORY_CHOICES = [
@@ -35,35 +39,46 @@ class ContactForm(forms.ModelForm):
         validators=[MinLengthValidator(12)],  # Ensure 12-digit length
     )
 
+    Date_of_Joining = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        required=True
+    )
+
+    Date_of_Resignation = forms.DateField(
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        required=False
+    )
+
+    Date_of_Data_Entry = forms.DateTimeField(
+        widget=forms.HiddenInput(),
+        required=False
+    )
+
     class Meta:
         model = Contact
         fields = [
-            'Retailer_ID', 'Franchise_ID', 'Grid', 'Cluster', 'Region',
+            'Retailer_ID', 'Franchise_ID',
             'Retailer_Number', 'DSO_Name', 'CNIC', 'BVS_Device',
-            'Location', 'Category', 'Other_Contact_Number'
+            'Location', 'Category', 'Other_Contact_Number',
+            'Date_of_Joining', 'Date_of_Resignation', 'Date_of_Data_Entry'
         ]
         widgets = {
             'Retailer_ID': forms.TextInput(attrs={'class': 'form-control'}),
             'Franchise_ID': forms.TextInput(attrs={'class': 'form-control'}),
-            'Grid': forms.TextInput(attrs={'class': 'form-control'}),
-            'Cluster': forms.TextInput(attrs={'class': 'form-control'}),
-            'Region': forms.TextInput(attrs={'class': 'form-control'}),
+          
             'Retailer_Number': forms.TextInput(attrs={'class': 'form-control'}),
             'DSO_Name': forms.TextInput(attrs={'class': 'form-control'}),
             'CNIC': forms.TextInput(attrs={'class': 'form-control'}),
             'BVS_Device': forms.TextInput(attrs={'class': 'form-control'}),
-            
             'Location': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def clean_Retailer_ID(self):
         retailer_id = self.cleaned_data.get('Retailer_ID')
 
-        # Skip validation if editing an existing contact
         if self.instance.pk:
-            return retailer_id  
+            return retailer_id  # Skip validation if editing an existing contact
 
-        # Enforce uniqueness check only when creating a new contact
         if Contact.objects.filter(Retailer_ID=retailer_id).exists():
             raise forms.ValidationError('This Retailer ID already exists in the database.')
 
@@ -75,28 +90,22 @@ class ContactForm(forms.ModelForm):
             raise forms.ValidationError('Other Contact Number must be exactly 12 digits.')
         return contact_number
 
-
-
-
-    def clean_Grid(self):
-        grid = self.cleaned_data.get('Grid')
-        if not re.match(r'^[A-Za-z]{1}\d{4}$', grid):
-            raise ValidationError("Grid should be in the format 'C2001'.")
-        return grid
-
     def clean_CNIC(self):
         cnic = self.cleaned_data.get('CNIC')
         if not re.match(r'^\d{13}$', cnic):
             raise ValidationError("CNIC must be exactly 13 digits.")
         return cnic
 
-
-
     def clean_Retailer_Number(self):
         retailer_number = self.cleaned_data.get('Retailer_Number')
         if not re.match(r'^\d{12}$', retailer_number):
             raise ValidationError("Retailer Number must be 12 digits and in this format: 923120000000.")
         return retailer_number
+
+    def save(self, *args, **kwargs):
+        pakistan_tz = pytz.timezone('Asia/Karachi')
+        self.Date_of_Data_Entry = datetime.now(pakistan_tz)  # Get Pakistan time directly
+        super().save(*args, **kwargs)
 
 
 from django import forms
