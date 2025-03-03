@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 
 from myapp.views import contact_view
 from myapp.views import contact_list_view,DSO_list_view,RSO_list_view,contact_delete,generate_oath_pdf,WIC_list_view
-from myapp.views import contact_edit_view,WIC_list_view
+from myapp.views import contact_edit_view,WIC_list_view,check_cnic
 from myapp.views import login_view
 from myapp.views import upload_file
 from myapp.views import get_retailer_number,contact_delete,update_BVS_Device
@@ -33,6 +33,8 @@ urlpatterns = [
     path('get_Cluster/', get_Cluster, name='get_Cluster'),
     path('check-retailer-id/', check_retailer_id, name='check_retailer_id'),
     path('check-BVS-Device/', check_BVS_Device, name='check_BVS_Device'),
+    path('check-cnic/', check_cnic, name='check_cnic'),
+
     path('update-BVS-Device/', update_BVS_Device, name='update_BVS_Device'),
     path('logout/', LogoutView.as_view(), name='logout'),  # Add this line
 
