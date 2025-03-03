@@ -1,567 +1,204 @@
-{% extends "Header/base.html" %}
+from django.db import models
 
-{% block content %}
-    <meta charset="UTF-8">
-    <title>WIC List</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+# Create your models here.
+from django.db import models
 
-    <div class="container mt-5">
-        <h1>WIC List</h1>
-        <div class="table-responsive" style="overflow-x: auto;">
-            <table class="table table-bordered table-hover" style="table-layout: fixed; width: 100%;">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="width: 93px; word-wrap: break-word; white-space: normal; font-size: 12px;">Retailer_ID</th>
-                        <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Franchise_ID</th>
-                        <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Joining Date</th>
-                        <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Retailer_NO</th>
-                        <th style="width: 90px; word-wrap: break-word; white-space: normal; font-size: 12px;">DSO_Name</th>
-                        <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">BVS_Device</th>
-                        <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Location</th>
-                        <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Category</th>
-                        <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">Other Contact #</th>
-                        <th style="width: 120px; word-wrap: break-word; white-space: normal; font-size: 12px;">Actions</th>
-                        <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Form</th> <!-- Form Column for Download PDF -->
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for contact in contacts %}
-                    <tr>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Retailer_ID }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Franchise_ID }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Date_of_Joining }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Retailer_Number }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.DSO_Name }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.BVS_Device }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Location }}</td>
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Category }}</td>
-                       
-                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Other_Contact_Number }}</td>
-                        <td>
-                            <a href="{% url 'contact_edit' contact.pk %}" class="btn btn-primary btn-sm" style="background-color: #9c3; border-color: #9c3; color: white;">
-                                <i class="fas fa-edit"></i> <!-- Font Awesome Edit Icon -->
-                            </a>
+from django.db import models
+from django.core.validators import MinLengthValidator
+from django.db import models
+from django.utils.timezone import now
+import pytz
 
-                            <!-- Delete Button with Icon -->
-                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ contact.id }}">
-                                <i class="fas fa-trash"></i> <!-- Font Awesome Delete Icon -->
-                            </button>
-                        </td>
+class Contact(models.Model): 
+    Retailer_ID = models.CharField(max_length=100, unique=True)
+    Franchise_ID = models.CharField(max_length=100)
+    Retailer_Number = models.CharField(max_length=100, null=True)
+    DSO_Name = models.CharField(max_length=100, null=True)
+    CNIC = models.CharField(max_length=15, null=True)
+    BVS_Device = models.CharField(max_length=100, null=True)
+    Location = models.CharField(max_length=100)
 
-                        <!-- Form Column for Oath Form and PDF Download -->
-                        <td>
-                            <!-- Oath Form (Read-only) -->
-                           
+    # Category field
+    CATEGORY_CHOICES = [
+        ('DSO', 'DSO'),
+        ('RSO', 'RSO'),
+        ('Retailer', 'Retailer'),
+        ('WIC', 'WIC'),
+    ]
+    Category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='DSO')
 
-        <!-- PDF Download Button for the Oath Form -->
-<a href="{% url 'generate_oath_pdf' contact.id %}" class="btn btn-danger btn-sm">
-    <i class="fas fa-file-pdf"></i>
-</a>
+    # Other Contact Number
+    Other_Contact_Number = models.CharField(max_length=13, null=True, blank=True)
 
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Add Button -->
-        <button type="button" class="btn btn-success mt-3" data-bs-toggle="modal" data-bs-target="#addContactModal" style="background-color: #9c3; border-color: #9c3; color: white;">
-            Add Record
-        </button>
-    </div>
-
-
-
-
-
+    # New Date Fields
+    Date_of_Joining = models.DateField(default='2024-01-01')
+    Date_of_Resignation = models.DateField(null=True, blank=True)
     
+    # Get Pakistani time for Date_of_Data_Entry
+    def get_pakistan_time():
+        pakistan_tz = pytz.timezone('Asia/Karachi')
+        return now().astimezone(pakistan_tz)
 
-        <!-- Modal -->
-        <div class="modal fade" id="addContactModal" tabindex="-1" aria-labelledby="addContactModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addContactModalLabel">Add Record</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form method="post" novalidate>
-                            {% csrf_token %}
-                            <div class="row">
-                                <!-- Left Column (6 fields) -->
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        {{ form.Retailer_ID.label_tag }}
-                                        {{ form.Retailer_ID }}
-                                    </div>
-                                    <div class="mb-3">
-                                        {{ form.Franchise_ID.label_tag }}
-                                        {{ form.Franchise_ID }}
-                                    </div>
-                                    <div class="mb-3">
-                                        {{ form.Date_of_Joining.label_tag }}
-                                        {{ form.Date_of_Joining }}
-                                    </div>
-                                  
-                                   
-                                    <div class="mb-3">
-                                        {{ form.Retailer_Number.label_tag }}
-                                        {{ form.Retailer_Number }}
-                                    </div>
-                                    <div class="mb-3">
-                                        {{ form.BVS_Device.label_tag }}
-                                        {{ form.BVS_Device }}
-                                    </div>
-                                   
-                                </div>
-                                
-                                <!-- Right Column (5 fields) -->
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        {{ form.DSO_Name.label_tag }}
-                                        {{ form.DSO_Name }}
-                                    </div>
-                                    <div class="mb-3">
-                                        {{ form.CNIC.label_tag }}
-                                        {{ form.CNIC }}
-                                    </div>
-                                   
-                                   
-                                    <div class="mb-3">
-                                        {{ form.Location.label_tag }}
-                                        {{ form.Location }}
-                                    </div>
-                                    <div class="mb-3">
-                                        {{ form.Category.label_tag }}
-                                        <select id="id_Category" class="form-control" disabled>
-                                            <option value="WIC" selected>WIC</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <!-- Hidden input to submit the value -->
-                                    <input type="hidden" name="Category" value="WIC">
-                                    
-                                    <div class="mb-3">
-                                        {{ form.Other_Contact_Number.label_tag }}
-                                        {{ form.Other_Contact_Number }}
-                                    </div>
-                                </div>
-                            </div>
-                    
-                            
-                                
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
- <!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this contact?</p>
-                <!-- Date of Resignation Input -->
-                <label for="Date_of_Resignation">Date of Resignation:</label>
-                <input type="date" id="Date_of_Resignation" name="Date_of_Resignation" required>
-            </div>
-            <div class="modal-footer">
-                <!-- Cancel Button -->
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <!-- Delete Button -->
-                <form id="deleteForm" method="POST">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<div id="bvs-error-modal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid black; z-index: 1000;">
-    <p id="bvs-error-message"></p>
-    <button id="bvs-modal-yes">Yes</button>
-    <button id="bvs-modal-no">No</button>
-</div>
+    Date_of_Data_Entry = models.DateTimeField(default=get_pakistan_time)
+        # New Other_Contact_Number field
+    Other_Contact_Number = models.CharField(
+        max_length=13,
+        null=True,
+        blank=True,  # Allow the field to be left empty
+    )
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script type="text/javascript">
-document.querySelectorAll('button[data-bs-target="#deleteModal"]').forEach(button => {
-    button.addEventListener('click', function() {
-        const contactId = this.getAttribute('data-id');
-        console.log("Delete button clicked. Contact ID:", contactId);
-
-        const deleteForm = document.getElementById('deleteForm');
-        if (!deleteForm) {
-            console.error("Delete form not found!");
-            return;
-        }
-
-        deleteForm.action = `/delete_contact/${contactId}/`;
-        console.log("Delete form action set to:", deleteForm.action);
-    });
-});
-
-// Ensure form submission happens correctly
-document.getElementById('deleteForm').addEventListener('submit', function(event) {
-    event.preventDefault();  // Prevent default to check submission first
-    console.log("Delete form submitted!");
-
-    const resignationDate = document.getElementById('Date_of_Resignation').value;
-    if (!resignationDate) {
-        console.error("Date of Resignation is required!");
-        alert("Please select a Date of Resignation before deleting.");
-        return;
-    }
-
-    let formData = new FormData(this);
-    formData.append('Date_of_Resignation', resignationDate);  // Add resignation date to formData
-
-    fetch(this.action, {
-        method: "POST",
-        body: formData,
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Server response:", data);
-        if (data.message) {
-            location.reload();  // Reload the page to reflect deletion
-        } else {
-            console.error("Delete failed:", data.error);
-        }
-    })
-    .catch(error => console.error("Error:", error));
-});
+    def __str__(self):
+        return self.Retailer_ID
 
 
 
-document.querySelector('form').addEventListener('submit', function(event) {
-    let formIsValid = true;
-    
-    // Clear previous error messages
-    clearRetailerIdError();
 
-    const retailerId = document.getElementById('id_Retailer_ID').value.trim();
-    if (retailerId) {
-        // Perform the duplicate check for Retailer_ID
-        fetch(`/check-retailer-id/?retailer_id=${retailerId}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.exists) {
-                    formIsValid = false;
-                    showRetailerIdError('This Retailer ID already exists.');
-                }
 
-                // If the Retailer_ID is valid, proceed with the form submission
-                if (!formIsValid) {
-                    // Prevent form submission if validation fails
-                    event.preventDefault();
-                }
-            })
-            .catch(error => {
-                console.error('Error checking Retailer ID:', error);
-                // You can also show a general error message here if needed
-                formIsValid = false;
-                showRetailerIdError('An error occurred while checking the Retailer ID.');
-                event.preventDefault();
-            });
-    } else {
-        formIsValid = false;
-        showRetailerIdError('Retailer ID cannot be empty.');
-        event.preventDefault();
-    }
-});
 
-// Keep the Retailer_ID field in invalid state if there’s an error
-function showRetailerIdError(message) {
-    let errorElement = document.getElementById('retailer-id-error');
-    if (!errorElement) {
-        errorElement = document.createElement('div');
-        errorElement.id = 'retailer-id-error';
-        errorElement.classList.add('text-danger', 'error-message');
-        document.getElementById('id_Retailer_ID').parentElement.appendChild(errorElement);
-    }
-    errorElement.textContent = message;
-    document.getElementById('id_Retailer_ID').classList.add('is-invalid');
-}
-
-function clearRetailerIdError() {
-    const errorElement = document.getElementById('retailer-id-error');
-    if (errorElement) {
-        errorElement.remove();
-    }
-    document.getElementById('id_Retailer_ID').classList.remove('is-invalid');
-}
-
-// Optionally, you can disable the submit button until validation passes
-document.getElementById('id_Retailer_ID').addEventListener('input', function() {
-    // Perform a real-time check to disable/enable submit button
-    const retailerId = this.value.trim();
-    if (retailerId) {
-        fetch(`/check-retailer-id/?retailer_id=${retailerId}`)
-            .then(response => response.json())
-            .then(data => {
-                const submitButton = document.querySelector('button[type="submit"]');
-                if (data.exists) {
-                    showRetailerIdError('This Retailer ID already exists or You are not Authorized to use this ID.');
-                    submitButton.disabled = true;
-                } else {
-                    clearRetailerIdError();
-                    submitButton.disabled = false;
-                }
-            })
-            .catch(error => console.error('Error checking Retailer ID:', error));
-    } else {
-        clearRetailerIdError();
-        document.querySelector('button[type="submit"]').disabled = true;
-    }
-});
  
-document.getElementById('id_BVS_Device').addEventListener('input', function(event) {
-    const BVS_Device = event.target.value.trim();
-    console.log("BVS Device input detected:", BVS_Device);
-
-    if (BVS_Device) {
-        setTimeout(() => {  // Allow time for pasted values to register
-            fetch(`/check-BVS-Device/?BVS_Device=${BVS_Device}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Response from /check-BVS-Device/:", data);
-
-                    const submitButton = document.querySelector('button[type="submit"]');
-
-                    if (data.exists) {
-                        console.log("BVS Device already exists. Showing error below input.");
-                        showBVSError(data.retailer_id, data.category, BVS_Device);
-                        submitButton.disabled = true;
-                    } else {
-                        console.log("BVS Device is available.");
-                        clearBVSDeviceError();
-                        submitButton.disabled = false;
-                    }
-                })
-                .catch(error => console.error('Error checking BVS Device ID:', error));
-        }, 100); // Delay to capture pasted values
-    } else {
-        console.log("BVS Device input is empty.");
-        clearBVSDeviceError();
-        document.querySelector('button[type="submit"]').disabled = true;
-    }
-});
-
-function showBVSError(retailerId, category, BVS_Device) {
-    let errorElement = document.getElementById('BVS_Device-error');
-    if (!errorElement) {
-        errorElement = document.createElement('div');
-        errorElement.id = 'BVS_Device-error';
-        errorElement.classList.add('text-danger', 'error-message');
-        document.getElementById('id_BVS_Device').parentElement.appendChild(errorElement);
-    }
-
-    errorElement.innerHTML = `
-        This BVS device is tagged against retailer ID: ${retailerId} (${category}). 
-        <button id="change-tagging-btn" class="btn btn-link p-0">Change Tagging</button>
-    `;
+ 
+class Authenticate(models.Model):
+   
     
-    document.getElementById('id_BVS_Device').classList.add('is-invalid');
-
-    // Add event listener for "Change Tagging" button
-    document.getElementById('change-tagging-btn').addEventListener('click', function(event) {
-        event.preventDefault();
-        showBVSErrorModal(retailerId, category, BVS_Device);
-    });
-}
-
-function clearBVSDeviceError() {
-    const errorElement = document.getElementById('BVS_Device-error');
-    if (errorElement) {
-        errorElement.remove();
-    }
-    document.getElementById('id_BVS_Device').classList.remove('is-invalid');
-}
-
-function showBVSErrorModal(retailerId, category, BVS_Device) {
-    console.log("Displaying error modal for BVS Device:", BVS_Device);
-    const modal = document.getElementById('bvs-error-modal');
-    document.getElementById('bvs-error-message').textContent = 
-        `This BVS device is tagged against retailer ID: ${retailerId} (${category}). Do you want to change tagging?`;
-    modal.style.display = 'block';
-    modal.style.zIndex = '9999'; // Ensure modal appears above everything
-
-    document.getElementById('bvs-modal-yes').onclick = function() {
-        console.log("User clicked YES to update BVS Device.");
-        fetch('/update-BVS-Device/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken()
-            },
-            body: JSON.stringify({ BVS_Device: BVS_Device })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("Response from /update-BVS-Device/:", data);
-            if (data.success) {
-                alert('Tagging updated successfully.');
-                clearBVSDeviceError();
-            }
-        })
-        .catch(error => console.error('Error updating BVS Device:', error));
-        modal.style.display = 'none';
-    };
-
-    document.getElementById('bvs-modal-no').onclick = function() {
-        console.log("User clicked NO, closing modal.");
-        modal.style.display = 'none';
-    };
-}
-
-function getCSRFToken() {
-    return document.querySelector('[name=csrfmiddlewaretoken]').value;
-}
-
-
-function displayError(inputId, errorMsg) {
-    const inputElement = document.getElementById(inputId);
-    let errorMessage = document.querySelector(`#${inputId} + .error-message`);
-    if (!errorMessage) {
-        errorMessage = document.createElement('div');
-        errorMessage.classList.add('text-danger', 'error-message');
-        errorMessage.textContent = errorMsg;
-        inputElement.parentElement.appendChild(errorMessage);
-    }
-    inputElement.classList.add('is-invalid');
-}
-
-function removeError(inputId) {
-    const inputElement = document.getElementById(inputId);
-    const errorMessage = document.querySelector(`#${inputId} + .error-message`);
-    if (errorMessage) {
-        errorMessage.remove();
-    }
-    inputElement.classList.remove('is-invalid');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('#addContactModal form');
-
-    form.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        let formIsValid = true;
-        
-        // Clear previous error messages
-        document.querySelectorAll('.error-message').forEach(el => el.remove());
-        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-        const fieldsToCheck = [
-    { 
-        id: 'id_Retailer_ID', 
-        errorMsg: 'Retailer ID cannot be empty.',
-        validation: value => value.trim() !== ''
-    },
-    { 
-        id: 'id_Retailer_ID', 
-        errorMsg: 'Retailer ID already exists.',
-        validation: async value => {
-            if (value.trim() === '') return true;
-            try {
-                const response = await fetch(`/check-retailer-id/?retailer_id=${value}`);
-                const data = await response.json();
-                return !data.exists;
-            } catch (error) {
-                console.error('Error checking Retailer ID:', error);
-                return false;
-            }
-        }
-    },
-    { 
-        id: 'id_Franchise_ID', 
-        errorMsg: 'Franchise ID cannot be empty.',
-        validation: value => value.trim() !== ''
-    },
-    { 
-        id: 'id_CNIC', 
-        errorMsg: 'CNIC must be exactly 13 digits.',
-        validation: value => /^\d{13}$/.test(value)
-    },
-    { 
-        id: 'id_Retailer_Number', 
-        errorMsg: 'Retailer Number must be in format: 923120000000.',
-        validation: value => /^\d{12}$/.test(value)
-    },
-    { 
-        id: 'id_Other_Contact_Number', 
-        errorMsg: 'Other Contact Number must be in format: 923120000000.',
-        validation: value => /^\d{12}$/.test(value)
-    },
-    { 
-        id: 'id_BVS_Device', 
-        errorMsg: 'BVS Device cannot be empty.',
-        validation: value => value.trim() !== ''
-    },
-    { 
-        id: 'id_Category', 
-        errorMsg: 'Category cannot be empty.',
-        validation: value => value.trim() !== ''
-    },
-    { 
-        id: 'id_Location', 
-        errorMsg: 'Location cannot be empty.',
-        validation: value => value.trim() !== ''
-    },
-    { 
-        id: 'id_DSO_Name', 
-        errorMsg: 'DSO Name cannot be empty.',
-        validation: value => value.trim() !== ''
-    },
-    { 
-        id: 'id_Date_of_Joining', 
-        errorMsg: 'Date of Joining cannot be empty.',
-        validation: value => value.trim() !== ''
-    }
-];
-
-        const validationPromises = fieldsToCheck.map(async field => {
-            const fieldElement = document.getElementById(field.id);
-            if (!fieldElement) return true;
-            
-            const fieldValue = fieldElement.value;
-            const isValid = field.validation.constructor.name === 'AsyncFunction' 
-                ? await field.validation(fieldValue) 
-                : field.validation(fieldValue);
-            
-            if (!isValid) {
-                formIsValid = false;
-                const errorMessage = document.createElement('div');
-                errorMessage.classList.add('text-danger', 'error-message');
-                errorMessage.textContent = field.errorMsg;
-                fieldElement.classList.add('is-invalid');
-                fieldElement.parentElement.appendChild(errorMessage);
-            }
-        });
-
-        await Promise.all(validationPromises);
-
-        if (formIsValid) {
-            form.submit();
-        }
-    });
-});
-
-
-    </script>
+    user_name = models.CharField(max_length=255)  
+    password = models.CharField(max_length=255)  
     
-{% endblock %}
+
+    class Meta:
+        db_table = 'Authenticate'    
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils.timezone import now
+
+class ContactChangeLog(models.Model):
+    username = models.CharField(max_length=150, default='unknown')  # Add a default
+    contact = models.ForeignKey('Contact', on_delete=models.CASCADE)
+    field_name = models.CharField(max_length=255)
+    old_value = models.TextField(null=True, blank=True)
+    new_value = models.TextField(null=True, blank=True)
+    timestamp = models.DateTimeField(default=now)
+
+    def __str__(self):
+        return f"{self.username} updated {self.field_name} on {self.contact}"
+
+# models.py
+from django.db import models
+
+class DataRecord(models.Model):
+    second_parent_region = models.CharField(max_length=100)
+    second_parent_id = models.CharField(max_length=100)
+    rso_id = models.CharField(max_length=100)
+    rso_msisdn = models.CharField(max_length=100)
+    retailer_id = models.CharField(max_length=100)
+    retailer_msisdn = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.retailer_id} - {self.retailer_msisdn}"       
+
+   
+class DataRecordBVS(models.Model):
+    Device_ID = models.CharField(max_length=100)
+    Franchise_ID= models.CharField(max_length=100)
+   
+
+    def __str__(self):
+        return f"{self.retailer_id} - {self.Device_ID}"
+
+   
+class Heirarchy(models.Model):
+    Franchise_ID = models.CharField(max_length=100)
+    Grid = models.CharField(max_length=100)
+    Cluster = models.CharField(max_length=100)
+
+   
+
+    def __str__(self):
+        return f"{self.Franchise_ID} - {self.Grid}"
 
 
+
+class delete_contact(models.Model): 
+    Retailer_ID = models.CharField(max_length=100, unique=True)
+    Franchise_ID = models.CharField(max_length=100)
+    Retailer_Number = models.CharField(max_length=100, null=True)
+    DSO_Name = models.CharField(max_length=100, null=True)
+    CNIC = models.CharField(max_length=15, null=True)
+    BVS_Device = models.CharField(max_length=100, null=True)
+    Location = models.CharField(max_length=100)
+    username= models.CharField(max_length=100)
+
+    # Category field
+    CATEGORY_CHOICES = [
+        ('DSO', 'DSO'),
+        ('RSO', 'RSO'),
+        ('Retailer', 'Retailer'),
+        ('Franchise', 'Franchise'),
+    ]
+    Category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='DSO')
+
+    # Other Contact Number
+    Other_Contact_Number = models.CharField(max_length=13, null=True, blank=True)
+
+    # New Date Fields
+    Date_of_Joining = models.DateField(default='2024-01-01')
+    Date_of_Resignation = models.DateField(null=True, blank=True)
+    
+    # Get Pakistani time for Date_of_Data_Entry
+    def get_pakistan_time():
+        pakistan_tz = pytz.timezone('Asia/Karachi')
+        return now().astimezone(pakistan_tz)
+
+    Date_of_Data_Entry = models.DateTimeField(default=get_pakistan_time)
+        # New Other_Contact_Number field
+    Other_Contact_Number = models.CharField(
+        max_length=13,
+        null=True,
+        blank=True,  # Allow the field to be left empty
+    )
+
+    def __str__(self):
+        return self.Retailer_ID
+
+
+class edit_contact(models.Model): 
+    Retailer_ID = models.CharField(max_length=100)
+    Franchise_ID = models.CharField(max_length=100)
+    Retailer_Number = models.CharField(max_length=100, null=True)
+    DSO_Name = models.CharField(max_length=100, null=True)
+    CNIC = models.CharField(max_length=15, null=True)
+    BVS_Device = models.CharField(max_length=100, null=True)
+    Location = models.CharField(max_length=100)
+    username= models.CharField(max_length=100)
+
+    # Category field
+    CATEGORY_CHOICES = [
+        ('DSO', 'DSO'),
+        ('RSO', 'RSO'),
+        ('Retailer', 'Retailer'),
+        ('Franchise', 'Franchise'),
+    ]
+    Category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='DSO')
+
+    # Other Contact Number
+    Other_Contact_Number = models.CharField(max_length=13, null=True, blank=True)
+
+    # New Date Fields
+    Date_of_Joining = models.DateField(default='2024-01-01')
+    Date_of_Resignation = models.DateField(null=True, blank=True)
+    
+    # Get Pakistani time for Date_of_Data_Entry
+    def get_pakistan_time():
+        pakistan_tz = pytz.timezone('Asia/Karachi')
+        return now().astimezone(pakistan_tz)
+
+    Date_of_Data_Entry = models.DateTimeField(default=get_pakistan_time)
+        # New Other_Contact_Number field
+    Other_Contact_Number = models.CharField(
+        max_length=13,
+        null=True,
+        blank=True,  # Allow the field to be left empty
+    )
+
+    def __str__(self):
+        return self.Retailer_ID
