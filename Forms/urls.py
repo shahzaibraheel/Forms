@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 
 from myapp.views import contact_view
 from myapp.views import contact_list_view,DSO_list_view,RSO_list_view,contact_delete,generate_oath_pdf,WIC_list_view
-from myapp.views import contact_edit_view
+from myapp.views import contact_edit_view,WIC_list_view
 from myapp.views import login_view
 from myapp.views import upload_file
 from myapp.views import get_retailer_number,contact_delete,update_BVS_Device
@@ -20,10 +20,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('contact/', contact_view, name='contact'),
     path('', RedirectView.as_view(url='/login/')),  # Redirect root to /contact/
-    path('contact/list/', contact_list_view, name='contact_list'),  # List URL
-    path('DSO/list/', DSO_list_view, name='DSO_List'),  # List URL
-    path('RSO/list/', RSO_list_view, name='RSO_list'),  # List URL
-    path('WIC/list/', WIC_list_view, name='WIC_list'),  # List URL
+    path('contact/list/', contact_list_view, name='contact_list'),  
+    path('DSO/list/', DSO_list_view, name='DSO_List'), 
+    path('RSO/list/', RSO_list_view, name='RSO_list'), 
+    path('WIC/list/', WIC_list_view, name='WIC_list'), 
+   
     path('contact/edit/<int:pk>/', contact_edit_view, name='contact_edit'),
     path('login/', login_view, name="login"),
     path('upload/', upload_file, name='upload_file'),
