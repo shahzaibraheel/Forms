@@ -53,7 +53,7 @@
     
 
     <script>
-       document.getElementById('id_BVS_Device').addEventListener('input', function(event) {
+document.getElementById('id_BVS_Device').addEventListener('input', function(event) {
     const BVS_Device = event.target.value.trim();
     console.log("BVS Device input detected:", BVS_Device);
 
@@ -67,8 +67,13 @@
                     const submitButton = document.querySelector('button[type="submit"]');
 
                     if (data.exists) {
-                        console.log("BVS Device already exists. Showing error below input.");
-                        showBVSError(data.retailer_id, data.category, BVS_Device);
+                        if (data.error) {
+                            console.log("Error detected:", data.error);
+                            showBVSDeviceGeneralError(data.error);
+                        } else {
+                            console.log("BVS Device already exists. Showing retailer info.");
+                            showBVSError(data.retailer_id, data.category, BVS_Device);
+                        }
                         submitButton.disabled = true;
                     } else {
                         console.log("BVS Device is available.");
@@ -77,7 +82,7 @@
                     }
                 })
                 .catch(error => console.error('Error checking BVS Device ID:', error));
-        }, 100); // Delay to capture pasted values
+        }, 100); 
     } else {
         console.log("BVS Device input is empty.");
         clearBVSDeviceError();
@@ -94,25 +99,37 @@ function showBVSError(retailerId, category, BVS_Device) {
         document.getElementById('id_BVS_Device').parentElement.appendChild(errorElement);
     }
 
-    errorElement.innerHTML = `
-        This BVS device is tagged against retailer ID: ${retailerId} (${category}). 
-        <button id="change-tagging-btn" class="btn btn-link p-0">Change Tagging</button>
-    `;
-    
+    errorElement.innerHTML = `This BVS device is tagged against retailer ID: ${retailerId} (${category}). 
+        <button id="change-tagging-btn" class="btn btn-link p-0">Change Tagging</button>`;
+
     document.getElementById('id_BVS_Device').classList.add('is-invalid');
 
-    // Add event listener for "Change Tagging" button
     document.getElementById('change-tagging-btn').addEventListener('click', function(event) {
         event.preventDefault();
         showBVSErrorModal(retailerId, category, BVS_Device);
     });
 }
 
+function showBVSDeviceGeneralError(errorMessage) {
+    let errorElement = document.getElementById('BVS_Device-general-error');
+    if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.id = 'BVS_Device-general-error';
+        errorElement.classList.add('text-danger', 'error-message');
+        document.getElementById('id_BVS_Device').parentElement.appendChild(errorElement);
+    }
+
+    errorElement.innerText = errorMessage;
+    document.getElementById('id_BVS_Device').classList.add('is-invalid');
+}
+
 function clearBVSDeviceError() {
     const errorElement = document.getElementById('BVS_Device-error');
-    if (errorElement) {
-        errorElement.remove();
-    }
+    const generalErrorElement = document.getElementById('BVS_Device-general-error');
+
+    if (errorElement) errorElement.remove();
+    if (generalErrorElement) generalErrorElement.remove();
+    
     document.getElementById('id_BVS_Device').classList.remove('is-invalid');
 }
 
