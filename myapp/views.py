@@ -33,13 +33,36 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .models import Contact  # Ensure your model is correctly imported
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from myapp.models import Contact, DataRecordBVS # Ensure correct imports
+
 @csrf_exempt  # Remove this if CSRF protection is needed
 def check_BVS_Device(request):
     BVS_Device = request.GET.get('BVS_Device')
+    
+    if not BVS_Device:
+        return JsonResponse({'error': 'BVS_Device parameter is required'}, status=400)
+
     contact = Contact.objects.filter(BVS_Device=BVS_Device).first()  # Get the first match if exists
 
     if contact:
-        return JsonResponse({'exists': True, 'retailer_id': contact.Retailer_ID, 'category':contact.Category})  # Assuming retailer_id is a field
+        return JsonResponse({'exists': True, 'retailer_id': contact.Retailer_ID, 'category': contact.Category})
+
+    # Step 2: Check if Device_ID exists in DataRecord table
+    data_record = DataRecordBVS.objects.filter(Device_ID=BVS_Device).first()
+
+    if data_record:
+        franchise_id = data_record.Franchise_ID  # Fixed field name
+        print(f"Fetched Franchise_ID from DB: {franchise_id}")  # Debugging
+
+        # Step 3: Check if Franchise_ID matches the logged-in username
+        username = request.user.username if request.user.is_authenticated else None  # Fetching username
+
+        if franchise_id != username:
+            return JsonResponse({'exists': True, 'error': 'You are not authorized to use this BVS Device.'}, status=403)
+
+    return JsonResponse({'exists': False})  # Return false if no record is found
 
     return JsonResponse({'exists': False})
 from django.http import JsonResponse
@@ -327,15 +350,12 @@ def WIC_list_view(request):
             form.save()  # Save data to the database
             # Redirect to the same page after saving the form data
             return redirect('WIC_list')  # Replace 'contact_list' with your URL name for the contact list view
+         
     else:
         form = ContactForm()
 
-    # Apply the filter where Category is 'DSO'
-    contacts = Contact.objects.filter(Category='WIC',Franchise_ID=request.user.username)  # Only fetch records where Category = 'DSO'
-
-    return render(request, 'WIC_list.html', {'form': form, 'contacts': contacts})
-
-
+    contacts = Contact.objects.filter(Category='WIC',Franchise_ID=request.user.username) # Fetch all records from the database
+    return render(request, 'WIC_list.html', {'form': form, 'contacts': contacts})   
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from .forms import LoginForm
@@ -356,7 +376,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("/DSO/list")  # Redirect to home or dashboard page
+            return redirect("/contact/list")  # Redirect to home or dashboard page
         else:
             msg = "Invalid credentials"
     elif request.method == "POST":
@@ -443,8 +463,8 @@ def upload_file(request):
                 DataRecordBVS.objects.all().delete()
 
                 records = [
-                    DataRecordBVS(Device_ID=row[0], retailer_id=row[2])
-                    for row in sheet.iter_rows(min_row=2, values_only=True)
+                    DataRecordBVS(Device_ID=row[0], Franchise_ID=row[3])
+                    for row in sheet.iter_rows(min_row=3, values_only=True)
                 ]
 
                 DataRecordBVS.objects.bulk_create(records)
