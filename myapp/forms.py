@@ -23,7 +23,7 @@ class ContactForm(forms.ModelForm):
         ('DSO', 'DSO'),
         ('RSO', 'RSO'),
         ('Retailer', 'Retailer'),
-        ('Franchise', 'Franchise'),
+        ('WIC', 'WIC'),
     ]
 
     Category = forms.ChoiceField(
