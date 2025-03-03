@@ -452,6 +452,50 @@ function getCSRFToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]').value;
 }
 
+document.getElementById('id_CNIC').addEventListener('input', function(event) {
+    const cnic = event.target.value.trim();
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    if (cnic) {
+        setTimeout(() => {  // Allow time for pasted values to register
+            fetch(`/check-cnic/?cnic=${cnic}`)  // Ensure correct URL
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        showCNICError(data.error);
+                        submitButton.disabled = true;
+                    } else {
+                        clearCNICError();
+                        submitButton.disabled = false;
+                    }
+                })
+                .catch(error => console.error('Error checking CNIC:', error));
+        }, 100); 
+    } else {
+        clearCNICError();
+        submitButton.disabled = true;
+    }
+});
+
+function showCNICError(errorMessage) {
+    let errorElement = document.getElementById('cnic-error');
+    if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.id = 'cnic-error';
+        errorElement.classList.add('text-danger', 'error-message');
+        document.getElementById('id_CNIC').parentElement.appendChild(errorElement);
+    }
+
+    errorElement.innerHTML = errorMessage;
+    document.getElementById('id_CNIC').classList.add('is-invalid');
+}
+
+function clearCNICError() {
+    const errorElement = document.getElementById('cnic-error');
+    if (errorElement) errorElement.remove();
+
+    document.getElementById('id_CNIC').classList.remove('is-invalid');
+}
 
 function displayError(inputId, errorMsg) {
     const inputElement = document.getElementById(inputId);
