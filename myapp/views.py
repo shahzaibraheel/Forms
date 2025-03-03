@@ -148,7 +148,16 @@ def check_retailer_id(request):
             return JsonResponse({'exists': False, 'authorized': True})
 
     return JsonResponse({'exists': False, 'authorized': False})
+@login_required
+def check_cnic(request):
+    cnic = request.GET.get('cnic')
+    if not cnic:
+        return JsonResponse({'error': 'CNIC parameter is required.'}, status=400)
 
+    if Contact.objects.filter(CNIC=cnic).exists():
+        return JsonResponse({'exists': True, 'error': 'CNIC already exists.'}, status=400)
+    
+    return JsonResponse({'exists': False})
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
