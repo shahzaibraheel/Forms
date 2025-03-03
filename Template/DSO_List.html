@@ -18,7 +18,7 @@
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Retailer_NO</th>
                         <th style="width: 90px; word-wrap: break-word; white-space: normal; font-size: 12px;">DSO_Name</th>
                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">BVS_Device</th>
-                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">CNIC</th>
+                        <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">CNIC</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Location</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Category</th>
                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">Other Contact #</th>
@@ -35,7 +35,7 @@
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Retailer_Number }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.DSO_Name }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.BVS_Device }}</td>
-                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.CNIC}}</td>
+                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.CNIC}}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Location }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Category }}</td>
                        
@@ -345,8 +345,13 @@ document.getElementById('id_BVS_Device').addEventListener('input', function(even
                     const submitButton = document.querySelector('button[type="submit"]');
 
                     if (data.exists) {
-                        console.log("BVS Device already exists. Showing error below input.");
-                        showBVSError(data.retailer_id, data.category, BVS_Device);
+                        if (data.error) {
+                            console.log("Error detected:", data.error);
+                            showBVSDeviceGeneralError(data.error);
+                        } else {
+                            console.log("BVS Device already exists. Showing retailer info.");
+                            showBVSError(data.retailer_id, data.category, BVS_Device);
+                        }
                         submitButton.disabled = true;
                     } else {
                         console.log("BVS Device is available.");
@@ -355,7 +360,7 @@ document.getElementById('id_BVS_Device').addEventListener('input', function(even
                     }
                 })
                 .catch(error => console.error('Error checking BVS Device ID:', error));
-        }, 100); // Delay to capture pasted values
+        }, 100); 
     } else {
         console.log("BVS Device input is empty.");
         clearBVSDeviceError();
@@ -372,25 +377,37 @@ function showBVSError(retailerId, category, BVS_Device) {
         document.getElementById('id_BVS_Device').parentElement.appendChild(errorElement);
     }
 
-    errorElement.innerHTML = `
-        This BVS device is tagged against retailer ID: ${retailerId} (${category}). 
-        <button id="change-tagging-btn" class="btn btn-link p-0">Change Tagging</button>
-    `;
-    
+    errorElement.innerHTML = `This BVS device is tagged against retailer ID: ${retailerId} (${category}). 
+        <button id="change-tagging-btn" class="btn btn-link p-0">Change Tagging</button>`;
+
     document.getElementById('id_BVS_Device').classList.add('is-invalid');
 
-    // Add event listener for "Change Tagging" button
     document.getElementById('change-tagging-btn').addEventListener('click', function(event) {
         event.preventDefault();
         showBVSErrorModal(retailerId, category, BVS_Device);
     });
 }
 
+function showBVSDeviceGeneralError(errorMessage) {
+    let errorElement = document.getElementById('BVS_Device-general-error');
+    if (!errorElement) {
+        errorElement = document.createElement('div');
+        errorElement.id = 'BVS_Device-general-error';
+        errorElement.classList.add('text-danger', 'error-message');
+        document.getElementById('id_BVS_Device').parentElement.appendChild(errorElement);
+    }
+
+    errorElement.innerText = errorMessage;
+    document.getElementById('id_BVS_Device').classList.add('is-invalid');
+}
+
 function clearBVSDeviceError() {
     const errorElement = document.getElementById('BVS_Device-error');
-    if (errorElement) {
-        errorElement.remove();
-    }
+    const generalErrorElement = document.getElementById('BVS_Device-general-error');
+
+    if (errorElement) errorElement.remove();
+    if (generalErrorElement) generalErrorElement.remove();
+    
     document.getElementById('id_BVS_Device').classList.remove('is-invalid');
 }
 
@@ -418,6 +435,7 @@ function showBVSErrorModal(retailerId, category, BVS_Device) {
             if (data.success) {
                 alert('Tagging updated successfully.');
                 clearBVSDeviceError();
+                location.reload();
             }
         })
         .catch(error => console.error('Error updating BVS Device:', error));
