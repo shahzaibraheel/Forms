@@ -60,7 +60,7 @@ class ContactForm(forms.ModelForm):
             'Retailer_ID', 'Franchise_ID',
             'Retailer_Number', 'DSO_Name', 'CNIC', 'BVS_Device',
             'Location', 'Category', 'Other_Contact_Number',
-            'Date_of_Joining', 'Date_of_Resignation', 'Date_of_Data_Entry'
+            'Date_of_Joining', 'Date_of_Resignation', 'Date_of_Data_Entry','Shop_Name'
         ]
         widgets = {
             'Retailer_ID': forms.TextInput(attrs={'class': 'form-control'}),
@@ -71,6 +71,7 @@ class ContactForm(forms.ModelForm):
             'CNIC': forms.TextInput(attrs={'class': 'form-control'}),
             'BVS_Device': forms.TextInput(attrs={'class': 'form-control'}),
             'Location': forms.TextInput(attrs={'class': 'form-control'}),
+            'Shop_Name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def clean_Retailer_ID(self):
