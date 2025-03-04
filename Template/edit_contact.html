@@ -9,37 +9,49 @@
         <h1>Edit Contact</h1>
         <form method="post">
             {% csrf_token %}
-
+        
             <!-- Retailer_ID (Readonly) -->
             <div class="mb-3">
                 <label for="{{ form.Retailer_ID.id_for_label }}" class="form-label">{{ form.Retailer_ID.label }}</label>
                 <input type="text" id="{{ form.Retailer_ID.id_for_label }}" name="{{ form.Retailer_ID.name }}" value="{{ form.Retailer_ID.value }}" class="form-control" readonly>
             </div>
-
-            <!-- Loop through fields and display them in order -->
+        
             {% for field in form %}
-            {% if field.name != "Retailer_ID" and field.name != "Category" and field.name != "Date_of_Resignation" and field.name != "Date_of_Data_Entry" %}
-
-                    <div class="mb-3">
-                        {{ field.label_tag }}
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="text-danger">
-                                {{ field.errors }}
-                            </div>
-                        {% endif %}
-                    </div>
-
+                {% if field.name != "Retailer_ID" and field.name != "Category" and field.name != "Date_of_Resignation" and field.name != "Date_of_Data_Entry" %}
+        
+                    <!-- Shop_Name Field (Add ID for JavaScript) -->
+                    {% if field.name == "Shop_Name" %}
+                        <div class="mb-3" id="shop_name_container">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="mb-3">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger">
+                                    {{ field.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+        
                     <!-- Add Category right after Location -->
                     {% if field.name == "Location" %}
                         <div class="mb-3">
                             <label for="{{ form.Category.id_for_label }}" class="form-label">{{ form.Category.label }}</label>
-                            <input type="text" id="{{ form.Category.id_for_label }}" name="{{ form.Category.name }}" value="{{ form.Category.value }}" class="form-control" readonly>
+                            <input type="text" id="category_field" name="{{ form.Category.name }}" value="{{ form.Category.value }}" class="form-control" readonly>
                         </div>
                     {% endif %}
                 {% endif %}
             {% endfor %}
-
+        
             <button type="submit" class="btn btn-primary" style="background-color: #9c3; border-color: #9c3; color: white;">Save Changes</button>
         </form>
         <a href="/contact/list/" class="btn btn-secondary mt-3" style="background-color: #9c3; border-color: #9c3; color: white;">Back to Retailer List</a>
@@ -53,6 +65,22 @@
     
 
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        function toggleShopNameField() {
+            var categoryField = document.getElementById("category_field");
+            var shopNameContainer = document.getElementById("shop_name_container");
+
+            if (categoryField && shopNameContainer) {
+                if (categoryField.value.trim() === "Retailer") {
+                    shopNameContainer.style.display = "block";  // Show field
+                } else {
+                    shopNameContainer.style.display = "none";   // Hide field
+                }
+            }
+        }
+
+        toggleShopNameField(); // Initial check on page load
+    });
 document.getElementById('id_BVS_Device').addEventListener('input', function(event) {
     const BVS_Device = event.target.value.trim();
     console.log("BVS Device input detected:", BVS_Device);
@@ -198,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
     { id: 'id_Retailer_Number', errorMsg: 'Retailer Number must be 12 digits and in this format: 923120000000.', validation: value => /^\d{12}$/.test(value) },
     { id: 'id_DSO_Name', errorMsg: 'DSO Name cannot be empty.', validation: value => value.trim() !== '' },
     { id: 'id_BVS_Device', errorMsg: 'BVS Device cannot be empty.', validation: value => value.trim() !== '' },
+    { id: 'id_Shop_Name', errorMsg: 'Shop Name cannot be empty.', validation: value => value.trim() !== '' },
     { id: 'id_Date_of_Joining', errorMsg: 'Date of Joining cannot be empty.', validation: value => value.trim() !== '' }
 ];
 
