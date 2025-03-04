@@ -44,6 +44,11 @@ class ContactForm(forms.ModelForm):
         required=True
     )
 
+    Shop_Name = forms.CharField(
+    required=False,
+    widget=forms.TextInput(attrs={'class': 'form-control'})
+     )
+
     Date_of_Resignation = forms.DateField(
         widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         required=False
