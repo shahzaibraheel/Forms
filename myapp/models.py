@@ -17,7 +17,7 @@ class Contact(models.Model):
     CNIC = models.CharField(max_length=15, null=True)
     BVS_Device = models.CharField(max_length=100, null=True)
     Location = models.CharField(max_length=100)
-
+    Shop_Name=models.CharField(max_length=500,null=True)
     # Category field
     CATEGORY_CHOICES = [
         ('DSO', 'DSO'),
