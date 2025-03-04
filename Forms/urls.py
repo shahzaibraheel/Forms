@@ -36,6 +36,6 @@ urlpatterns = [
     path('check-cnic/', check_cnic, name='check_cnic'),
 
     path('update-BVS-Device/', update_BVS_Device, name='update_BVS_Device'),
-    path('logout/', LogoutView.as_view(next_page='/login/'), name='logout'),  # Logout view
+    path('logout/', LogoutView.as_view(), name='logout'),   # Logout view
 
 ]
