@@ -385,7 +385,7 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("/contact/list")  # Redirect to home or dashboard page
+            return redirect("/DSO/list")  # Redirect to home or dashboard page
         else:
             msg = "Invalid credentials"
     elif request.method == "POST":
