@@ -16,10 +16,11 @@
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Franchise_ID</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Joining Date</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Retailer_NO</th>
-                        <th style="width: 90px; word-wrap: break-word; white-space: normal; font-size: 12px;">Retailer_Name</th>
+                        <th style="width: 90px; word-wrap: break-word; white-space: normal; font-size: 12px;">DSO_Name</th>
                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">BVS_Device</th>
                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">CNIC</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Location</th>
+                        <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Shop_Name</th>
                         <th style="width: 100px; word-wrap: break-word; white-space: normal; font-size: 12px;">Category</th>
                         <th style="width: 110px; word-wrap: break-word; white-space: normal; font-size: 12px;">Other Contact #</th>
                         <th style="width: 120px; word-wrap: break-word; white-space: normal; font-size: 12px;">Actions</th>
@@ -37,6 +38,7 @@
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.BVS_Device }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.CNIC}}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Location }}</td>
+                        <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Shop_Name }}</td>
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Category }}</td>
                        
                         <td style="word-wrap: break-word; overflow: hidden; font-size: 12px;">{{ contact.Other_Contact_Number }}</td>
@@ -115,6 +117,10 @@
                                     <div class="mb-3">
                                         {{ form.BVS_Device.label_tag }}
                                         {{ form.BVS_Device }}
+                                    </div>
+                                    <div class="mb-3">
+                                        {{ form.Shop_Name.label_tag }}
+                                        {{ form.Shop_Name}}
                                     </div>
                                    
                                 </div>
@@ -587,6 +593,11 @@ document.addEventListener('DOMContentLoaded', function() {
     { 
         id: 'id_DSO_Name', 
         errorMsg: 'DSO Name cannot be empty.',
+        validation: value => value.trim() !== ''
+    },
+    { 
+        id: 'id_Shop_Name', 
+        errorMsg: 'Shop Name cannot be empty.',
         validation: value => value.trim() !== ''
     },
     { 
